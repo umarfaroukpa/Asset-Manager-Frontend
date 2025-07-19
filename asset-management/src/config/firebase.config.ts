@@ -1,6 +1,14 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User, UserCredential } from "firebase/auth";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged, 
+  signOut, 
+  User, 
+  UserCredential 
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCyzjBHJRXUCIUZK5s-XcTypje9adqESyw",
@@ -36,11 +44,46 @@ export const loginUser = async (email: string, password: string): Promise<User> 
   }
 };
 
+export const onAuthStateChange = (callback: (user: User | null) => void): (() => void) => {
+  return onAuthStateChanged(auth, callback);
+};
+
 export const logoutUser = async (): Promise<void> => {
   try {
     await signOut(auth);
   } catch (error) {
     throw error;
+  }
+};
+
+//getCurrentToken function
+export const getCurrentToken = async (): Promise<string | null> => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      // Get the ID token for the current user
+      const token = await currentUser.getIdToken();
+      return token;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting current token:', error);
+    return null;
+  }
+};
+
+// Alternative function to get token with force refresh option
+export const getCurrentTokenWithRefresh = async (forceRefresh: boolean = false): Promise<string | null> => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const token = await currentUser.getIdToken(forceRefresh);
+      return token;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting current token with refresh:', error);
+    return null;
   }
 };
 
