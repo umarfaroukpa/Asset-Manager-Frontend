@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getAssets } from '../services/api';
-import { Asset } from '../types/assets';
+import { Asset } from '../types/Assets';
 
 export const useAssets = (initialParams?: { search?: string; page?: number; status?: string }) => {
   const [assets, setAssets] = useState<Asset[]>([]);

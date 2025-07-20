@@ -1,21 +1,17 @@
+// src/components/assets/AssetCard.tsx
 import React from 'react';
-import { Asset } from '../types/Assets';
+import { Asset } from '../../types/assets';
 import { formatDate, formatCurrency } from '../../utils/formatters';
-import { 
-  Eye, 
-  Edit, 
-  Trash2,
-  QrCode,
-  MapPin,
-  User 
-} from 'lucide-react';
+import { Eye, Edit, Trash2, QrCode, MapPin, User, Package } from 'lucide-react';
 
 interface AssetCardProps {
   asset: Asset;
-  onView: (id: string) => void;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onView?: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
   onShowQR?: (id: string) => void;
+  variant?: 'default' | 'compact';
+  className?: string;
 }
 
 const AssetCard: React.FC<AssetCardProps> = ({ 
@@ -23,7 +19,9 @@ const AssetCard: React.FC<AssetCardProps> = ({
   onView, 
   onEdit, 
   onDelete, 
-  onShowQR 
+  onShowQR,
+  variant = 'default',
+  className = ''
 }) => {
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -37,24 +35,10 @@ const AssetCard: React.FC<AssetCardProps> = ({
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'available': return '🟢';
-      case 'assigned': return '🔵';
-      case 'maintenance': return '🟡';
-      case 'retired': return '🔴';
-      case 'active': return '🟢';
-      case 'inactive': return '⚫';
-      default: return '⚪';
-    }
-  };
-
-  // Helper function to get asset ID (handle both _id and id properties)
   const getAssetId = (asset: Asset): string => {
     return asset._id || (asset as any).id || '';
   };
 
-  // Helper function to get assigned user name
   const getAssignedUserName = (assignedTo: any): string => {
     if (!assignedTo) return '';
     if (typeof assignedTo === 'string') return assignedTo;
@@ -64,18 +48,74 @@ const AssetCard: React.FC<AssetCardProps> = ({
     return String(assignedTo);
   };
 
-  // Helper function to format creation date
-  const getCreatedDate = (asset: Asset): string => {
-    const createdAt = (asset as any).createdAt || asset.purchaseDate;
-    if (!createdAt) return 'Unknown date';
-    return formatDate(createdAt);
-  };
-
   const assetId = getAssetId(asset);
   const assignedUserName = getAssignedUserName(asset.assignedTo);
 
+  if (variant === 'compact') {
+    return (
+      <div className={`bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow ${className}`}>
+        <div className="p-4">
+          <div className="flex justify-between items-start mb-2">
+            <div className="flex items-center">
+              <Package className="w-5 h-5 text-blue-600 mr-3" />
+              <div>
+                <h3 className="font-semibold text-gray-900">{asset.name}</h3>
+                <p className="text-sm text-gray-500">{asset.category}</p>
+              </div>
+            </div>
+            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(asset.status)}`}>
+              {asset.status}
+            </span>
+          </div>
+
+          <div className="space-y-2 mb-2">
+            {asset.location && (
+              <div className="flex items-center text-sm text-gray-600">
+                <MapPin className="w-4 h-4 mr-2" />
+                {asset.location}
+              </div>
+            )}
+            {asset.purchaseDate && (
+              <div className="flex items-center text-sm text-gray-600">
+                <Calendar className="w-4 h-4 mr-2" />
+                {formatDate(asset.purchaseDate)}
+              </div>
+            )}
+            {asset.purchasePrice && (
+              <div className="flex items-center text-sm text-gray-600">
+                <DollarSign className="w-4 h-4 mr-2" />
+                {formatCurrency(asset.purchasePrice)}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-between items-center">
+            <p className="text-xs text-gray-500">#{asset.serialNumber}</p>
+            <div className="flex space-x-2">
+              {onView && (
+                <button onClick={() => onView(assetId)} className="p-1 text-gray-400 hover:text-blue-600">
+                  <Eye className="w-4 h-4" />
+                </button>
+              )}
+              {onEdit && (
+                <button onClick={() => onEdit(assetId)} className="p-1 text-gray-400 hover:text-green-600">
+                  <Edit className="w-4 h-4" />
+                </button>
+              )}
+              {onDelete && (
+                <button onClick={() => onDelete(assetId)} className="p-1 text-gray-400 hover:text-red-600">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200 overflow-hidden">
+    <div className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200 overflow-hidden ${className}`}>
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex justify-between items-start mb-2">
@@ -84,7 +124,7 @@ const AssetCard: React.FC<AssetCardProps> = ({
           </h3>
           {asset.status && (
             <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(asset.status)} whitespace-nowrap`}>
-              {getStatusIcon(asset.status)} {asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}
+              {asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}
             </span>
           )}
         </div>
@@ -156,7 +196,7 @@ const AssetCard: React.FC<AssetCardProps> = ({
       <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-500">
-            Created {getCreatedDate(asset)}
+            Added {formatDate(asset.createdAt || asset.purchaseDate)}
           </span>
           <div className="flex space-x-1">
             {onShowQR && assetId && (
@@ -168,7 +208,7 @@ const AssetCard: React.FC<AssetCardProps> = ({
                 <QrCode className="h-4 w-4" />
               </button>
             )}
-            {assetId && (
+            {onView && assetId && (
               <button
                 onClick={() => onView(assetId)}
                 className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
@@ -177,7 +217,7 @@ const AssetCard: React.FC<AssetCardProps> = ({
                 <Eye className="h-4 w-4" />
               </button>
             )}
-            {assetId && (
+            {onEdit && assetId && (
               <button
                 onClick={() => onEdit(assetId)}
                 className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors"
@@ -186,7 +226,7 @@ const AssetCard: React.FC<AssetCardProps> = ({
                 <Edit className="h-4 w-4" />
               </button>
             )}
-            {assetId && (
+            {onDelete && assetId && (
               <button
                 onClick={() => onDelete(assetId)}
                 className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"

@@ -1,20 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import {
-  Package,
-  Plus,
-  Search,
-  Filter,
-  Download,
-  Upload,
-  Eye,
-  Edit,
-  Trash2,
-  MapPin,
-  Calendar,
-  DollarSign,
-  AlertTriangle,
-} from 'lucide-react';
+import { Package,  Plus, Search,  Filter, Download,  Upload, Eye, Edit,  Trash2,  MapPin, Calendar, DollarSign, AlertTriangle, } from 'lucide-react';
+  
+ 
 
 // Define the Asset interface
 interface Asset {

@@ -1,23 +1,40 @@
 import React, { useState } from 'react';
 import { Search, Filter, X } from 'lucide-react';
 
+interface SearchFilterOption {
+  value: string;
+  label: string;
+}
+
 interface SearchBarProps {
-  onSearch: (search: string, status?: string) => void;
+  onSearch: (search: string, filters?: Record<string, string>) => void;
   placeholder?: string;
-  showStatusFilter?: boolean;
+  filters?: {
+    [key: string]: {
+      label: string;
+      options: SearchFilterOption[];
+      defaultValue?: string;
+    };
+  };
+  className?: string;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
   onSearch,
-  placeholder = "Search assets...",
-  showStatusFilter = true
+  placeholder = "Search...",
+  filters = {},
+  className = ""
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
+    Object.fromEntries(
+      Object.entries(filters).map(([key, config]) => [key, config.defaultValue || ''])
+    )
+  );
   const [showFilters, setShowFilters] = useState(false);
 
   const handleSearch = () => {
-    onSearch(searchTerm, statusFilter || undefined);
+    onSearch(searchTerm, activeFilters);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -28,20 +45,24 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const clearSearch = () => {
     setSearchTerm('');
-    setStatusFilter('');
-    onSearch('', undefined);
+    const clearedFilters = Object.fromEntries(
+      Object.keys(activeFilters).map(key => [key, ''])
+    );
+    setActiveFilters(clearedFilters);
+    onSearch('', clearedFilters);
   };
 
-  const statusOptions = [
-    { value: '', label: 'All Status' },
-    { value: 'active', label: 'Active' },
-    { value: 'inactive', label: 'Inactive' },
-    { value: 'maintenance', label: 'Maintenance' },
-    { value: 'retired', label: 'Retired' }
-  ];
+  const handleFilterChange = (filterName: string, value: string) => {
+    setActiveFilters(prev => ({
+      ...prev,
+      [filterName]: value
+    }));
+  };
+
+  const hasActiveFilters = Object.values(activeFilters).some(value => value !== '');
 
   return (
-    <div className="mb-6">
+    <div className={`mb-6 ${className}`}>
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Search Input */}
         <div className="relative flex-1">
@@ -56,7 +77,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder={placeholder}
           />
-          {searchTerm && (
+          {(searchTerm || hasActiveFilters) && (
             <button
               onClick={clearSearch}
               className="absolute inset-y-0 right-0 pr-3 flex items-center"
@@ -68,12 +89,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          {showStatusFilter && (
+          {Object.keys(filters).length > 0 && (
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                showFilters ? 'bg-gray-100' : ''
-              }`}
+              className={`inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium ${
+                showFilters || hasActiveFilters 
+                  ? 'bg-gray-100 text-gray-700' 
+                  : 'bg-white text-gray-700 hover:bg-gray-50'
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
             >
               <Filter className="h-4 w-4 mr-2" />
               Filters
@@ -89,38 +112,47 @@ const SearchBar: React.FC<SearchBarProps> = ({
       </div>
 
       {/* Filters Panel */}
-      {showFilters && showStatusFilter && (
+      {showFilters && Object.keys(filters).length > 0 && (
         <div className="mt-4 p-4 bg-gray-50 rounded-md">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-                {statusOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {Object.entries(filters).map(([filterName, config]) => (
+              <div key={filterName}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {config.label}
+                </label>
+                <select
+                  value={activeFilters[filterName]}
+                  onChange={(e) => handleFilterChange(filterName, e.target.value)}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="">All {config.label}</option>
+                  {config.options.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
           </div>
           <div className="mt-4 flex justify-end gap-2">
             <button
               onClick={() => {
-                setStatusFilter('');
-                onSearch(searchTerm, undefined);
+                const clearedFilters = Object.fromEntries(
+                  Object.keys(activeFilters).map(key => [key, ''])
+                );
+                setActiveFilters(clearedFilters);
+                onSearch(searchTerm, clearedFilters);
               }}
               className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
             >
               Clear Filters
             </button>
             <button
-              onClick={handleSearch}
+              onClick={() => {
+                handleSearch();
+                setShowFilters(false);
+              }}
               className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
             >
               Apply Filters
