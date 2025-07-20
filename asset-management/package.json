@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
+    "@heroicons/react": "^2.2.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/react-toastify": "^4.0.2",
     "@yudiel/react-qr-scanner": "^2.3.1",

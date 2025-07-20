@@ -1,10 +1,52 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Package, Users,  BarChart2,  QrCode, Shield, Zap, CheckCircle, ArrowRight } from 'lucide-react';
- 
-  
-  
-  const LandingPage = () => {
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Package, Users, BarChart2, QrCode, Shield, Zap, CheckCircle, ArrowRight } from 'lucide-react';
+import { authService } from '../services/authService'; 
+import { User } from '../types/auth.types'; 
+
+const LandingPage = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    // Check authentication status on mount
+    const checkAuthStatus = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const { user } = await authService.verifyToken(token);
+          setUser(user);
+          // If user is authenticated, redirect to dashboard
+          navigate('/dashboard');
+        } catch (error) {
+          // Token is invalid, remove it
+          localStorage.removeItem('token');
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+      setAuthLoading(false);
+    };
+
+    checkAuthStatus();
+  }, [navigate]);
+
+  // Show loading while checking auth state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-indigo-600 text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  // If user is authenticated, they shouldn't see the landing page
+  if (user) {
+    return null; // Will redirect to dashboard
+  }
+
   const features = [
     {
       icon: <Package className="w-6 h-6" />,
@@ -83,6 +125,26 @@ import { Package, Users,  BarChart2,  QrCode, Shield, Zap, CheckCircle, ArrowRig
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Navigation for unauthenticated users */}
+          <nav className="flex justify-between items-center mb-8">
+            <div className="text-2xl font-bold text-indigo-600">
+              AssetManager
+            </div>
+            <div className="space-x-4">
+              <button
+                onClick={() => navigate('/login')}
+                className="px-4 py-2 text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => navigate('/register')}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                Get Started
+              </button>
+            </div>
+          </nav>
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

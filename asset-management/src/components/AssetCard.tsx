@@ -1,14 +1,7 @@
 import React from 'react';
 import { Asset } from '../types/Assets';
-import { formatDate, formatCurrency } from '../../utils/formatters';
-import { 
-  Eye, 
-  Edit, 
-  Trash2,
-  QrCode,
-  MapPin,
-  User 
-} from 'lucide-react';
+import { formatDate, formatCurrency } from '../utils/formatters';
+import { Eye, Edit, Trash2, QrCode, MapPin, User } from 'lucide-react';
 
 interface AssetCardProps {
   asset: Asset;

@@ -3,10 +3,75 @@ import { LoginResponse, RegisterResponse, User, Organization } from '../types/au
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
+// Type for auth state change listeners
+type AuthStateListener = (user: User | null) => void;
+
 /**
  * AuthService handles authentication and user management API calls.
  */
 class AuthService {
+  private listeners: AuthStateListener[] = [];
+  private currentUser: User | null = null;
+
+  constructor() {
+    // Check for existing token on initialization
+    this.initializeAuth();
+  }
+
+  /**
+   * Initialize authentication state from localStorage
+   */
+  private async initializeAuth(): Promise<void> {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const { user } = await this.verifyToken(token);
+        this.currentUser = user;
+        this.notifyListeners();
+      } catch (error) {
+        // Token is invalid, remove it
+        localStorage.removeItem('token');
+        this.currentUser = null;
+        this.notifyListeners();
+      }
+    } else {
+      this.currentUser = null;
+      this.notifyListeners();
+    }
+  }
+
+  /**
+   * Subscribe to auth state changes
+   */
+  onAuthStateChange(listener: AuthStateListener): () => void {
+    this.listeners.push(listener);
+    
+    // Immediately call listener with current state
+    listener(this.currentUser);
+    
+    // Return unsubscribe function
+    return () => {
+      const index = this.listeners.indexOf(listener);
+      if (index > -1) {
+        this.listeners.splice(index, 1);
+      }
+    };
+  }
+
+  /**
+   * Notify all listeners of auth state change
+   */
+  private notifyListeners(): void {
+    this.listeners.forEach(listener => listener(this.currentUser));
+  }
+
+  /**
+   * Get current user
+   */
+  getCurrentUser(): User | null {
+    return this.currentUser;
+  }
+
   /**
    * Makes an authenticated API request.
    * @param endpoint API endpoint
@@ -40,10 +105,19 @@ class AuthService {
    */
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
-      return await this.makeRequest('/auth/login', {
+      const response = await this.makeRequest('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
+      
+      // Store token and update auth state
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+        this.currentUser = response.user;
+        this.notifyListeners();
+      }
+      
+      return response;
     } catch (error) {
       throw new Error('Login failed. Please check your credentials.');
     }
@@ -62,10 +136,19 @@ class AuthService {
     role: 'org_admin';
   }): Promise<RegisterResponse> {
     try {
-      return await this.makeRequest('/auth/register', {
+      const response = await this.makeRequest('/auth/register', {
         method: 'POST',
         body: JSON.stringify(userData),
       });
+      
+      // Store token and update auth state
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+        this.currentUser = response.user;
+        this.notifyListeners();
+      }
+      
+      return response;
     } catch (error) {
       throw new Error('Registration failed. Please try again.');
     }
@@ -76,11 +159,17 @@ class AuthService {
    */
   async logout(): Promise<void> {
     try {
-      return await this.makeRequest('/auth/logout', {
+      await this.makeRequest('/auth/logout', {
         method: 'POST',
       });
     } catch (error) {
-      throw new Error('Logout failed.');
+      // Even if API call fails, we still want to clear local state
+      console.error('Logout API call failed:', error);
+    } finally {
+      // Clear token and update auth state
+      localStorage.removeItem('token');
+      this.currentUser = null;
+      this.notifyListeners();
     }
   }
 
@@ -173,3 +262,8 @@ class AuthService {
 }
 
 export const authService = new AuthService();
+
+// Export the onAuthStateChange function for compatibility
+export const onAuthStateChange = (listener: AuthStateListener): (() => void) => {
+  return authService.onAuthStateChange(listener);
+};

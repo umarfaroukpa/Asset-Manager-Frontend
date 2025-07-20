@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import AssetForm from '../components/assets/AssetForm';
-import { Asset, AssetFormData } from '../types/assets';
+import AssetForm from '../components/AssetForm';
+import { Asset, AssetFormData } from '../types/Assets';
 import { SelectOption } from '../types/Common';
 
 const EditAsset: React.FC = () => {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Package, AlertCircle, Loader } from 'lucide-react';
-import { useApi } from '../../hooks/useApi';
-import Modal from '../common/Modal';
-import Select from '../common/Select';
+import { useApi } from '../hooks/useApi';
+import Modal from './common/Modal';
+import Select from './common/Select';
 
 interface Asset {
   _id: string;
@@ -60,7 +60,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
       if (response.data?.success) {
         setAssets(response.data.data.assets || []);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching assets:', error);
       setError('Failed to load available assets');
     } finally {
@@ -76,7 +76,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
       if (response.data?.success) {
         setUsers(response.data.data || []);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching users:', error);
       setError('Failed to load users');
     } finally {
@@ -105,7 +105,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
         onSuccess();
         onClose();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error assigning asset:', error);
       setError(error.response?.data?.message || 'Failed to assign asset');
     } finally {

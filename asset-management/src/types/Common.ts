@@ -39,3 +39,17 @@ export interface ButtonProps {
   children: React.ReactNode;
   className?: string;
 }
+
+export interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  showCloseButton?: boolean;
+  closeOnBackdropClick?: boolean;
+  closeOnEscape?: boolean;
+  className?: string;
+  overlayClassName?: string;
+  contentClassName?: string;
+}

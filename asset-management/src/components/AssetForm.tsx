@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Asset, AssetFormData } from '../types/Assets';
-import Input from '../common/Input';
-import Button from '../common/Button';
+import Input from './common/Input';
+import Button from './common/Button';
 
 // Define the SelectOption interface
 interface SelectOption {

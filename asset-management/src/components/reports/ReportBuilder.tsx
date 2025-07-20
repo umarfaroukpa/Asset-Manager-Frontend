@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Printer, FileText, BarChart2, PieChart, LineChart } from 'lucide-react';
+import { Download, Printer, FileText, BarChart2, PieChart, LineChart, X } from 'lucide-react';
 import Button from '../common/Button';
 import Select from '../common/Select';
 
@@ -128,8 +128,8 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({
             onClick={generateReport}
             variant="primary"
             loading={loading}
-            icon={<BarChart2 className="w-5 h-5 mr-2" />}
           >
+            <BarChart2 className="w-5 h-5 mr-2" />
             Generate Report
           </Button>
           
@@ -138,22 +138,22 @@ const ReportBuilder: React.FC<ReportBuilderProps> = ({
               <Button
                 onClick={() => onExport('pdf', generatedReport)}
                 variant="secondary"
-                icon={<FileText className="w-5 h-5 mr-2" />}
               >
+                <FileText className="w-5 h-5 mr-2" />
                 PDF
               </Button>
               <Button
                 onClick={() => onExport('csv', generatedReport)}
                 variant="secondary"
-                icon={<Download className="w-5 h-5 mr-2" />}
               >
+                <Download className="w-5 h-5 mr-2" />
                 CSV
               </Button>
               <Button
                 onClick={() => window.print()}
                 variant="secondary"
-                icon={<Printer className="w-5 h-5 mr-2" />}
               >
+                <Printer className="w-5 h-5 mr-2" />
                 Print
               </Button>
             </div>

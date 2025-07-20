@@ -1,8 +1,7 @@
-// src/components/common/Modal.tsx
 import React, { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { ModalProps } from '../../types/common';
+import { ModalProps } from '../../types/Common';
 
 const Modal: React.FC<ModalProps> = ({
   isOpen,

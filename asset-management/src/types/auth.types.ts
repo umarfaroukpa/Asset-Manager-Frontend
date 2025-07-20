@@ -1,14 +1,22 @@
+export type UserRole = 'user' | 'admin' | 'owner' |'manager';
+export type SubscriptionPlan = 'free' | 'basic' | 'premium';
+
 export interface User {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: 'super_admin' | 'org_admin' | 'staff';
+  displayName?: string; // Add displayName as optional field
+  lastLogin: string;
+  role: UserRole;
   organizationId: string;
   permissions: string[];
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  department: string;
+  phone: string;
+  name: string;
 }
 
 export interface Organization {
@@ -18,7 +26,7 @@ export interface Organization {
   phone?: string;
   address?: string;
   isActive: boolean;
-  subscriptionPlan: 'free' | 'basic' | 'premium';
+  subscriptionPlan: SubscriptionPlan;
   maxUsers: number;
   currentUsers: number;
   createdAt: string;

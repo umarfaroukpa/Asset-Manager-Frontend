@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { Asset, AuditLog } from '../types/assets';
+import { Asset, AuditLog } from '../types/Assets';
 
 const AssetDetails: React.FC = () => {
   const navigate = useNavigate();

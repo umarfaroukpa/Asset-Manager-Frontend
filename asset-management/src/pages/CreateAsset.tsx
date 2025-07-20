@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AssetForm from '../components/assets/AssetForm';
-import { AssetFormData } from '../types/assets';
-import { SelectOption } from '../types/common';
+import AssetForm from '../components/AssetForm';
+import { AssetFormData } from '../types/Assets';
+import { SelectOption } from '../types/Common';
 
 const CreateAsset: React.FC = () => {
   const navigate = useNavigate();

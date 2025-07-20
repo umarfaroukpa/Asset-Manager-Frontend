@@ -1,11 +1,15 @@
-// components/mobile/AssetScanner.tsx
 import React, { useState, useEffect } from 'react';
 import { QrCode, X, Check, AlertCircle } from 'lucide-react';
 import Button from '../common/Button';
 
-const AssetScanner = ({ onScanComplete, onClose }) => {
-  const [scanResult, setScanResult] = useState(null);
-  const [error, setError] = useState(null);
+interface AssetScannerProps {
+  onScanComplete: (assetId: string) => void;
+  onClose: () => void;
+}
+
+const AssetScanner: React.FC<AssetScannerProps> = ({ onScanComplete, onClose }) => {
+  const [scanResult, setScanResult] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -118,8 +122,8 @@ const AssetScanner = ({ onScanComplete, onClose }) => {
             onClick={handleConfirm}
             variant="success"
             className="flex-1"
-            icon={<Check className="w-5 h-5 mr-2" />}
           >
+            <Check className="w-5 h-5 mr-2 inline" />
             Confirm
           </Button>
         )}

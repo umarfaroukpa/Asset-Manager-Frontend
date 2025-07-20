@@ -1,5 +1,4 @@
-// src/utils/assetUtils.ts
-import { Asset } from '../types/assets';
+import { Asset } from '../types/Assets';
 
 export const formatAssetStatus = (status: string): string => {
   const statusMap: Record<string, string> = {

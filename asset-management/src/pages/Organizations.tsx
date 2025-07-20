@@ -1,24 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Building, Users, 
+import { Building, Users, Settings, Edit, Save, X, Mail, Phone, Globe, MapPin, Calendar, UserPlus, Shield, Activity, AlertTriangle, Trash2} from 'lucide-react';
   
   
-  Settings, 
-  Edit, 
-  Save, 
-  X, 
-  Mail, 
-  Phone, 
-  Globe, 
-  MapPin,
-  Calendar,
-  UserPlus,
-  Shield,
-  Activity,
-  AlertTriangle,
-  Trash2
-} from 'lucide-react';
-
-interface OrganizationSettings {
+   interface OrganizationSettings {
   allowPublicProfile: boolean;
   requireApprovalForMembers: boolean;
   enableTwoFactor: boolean;

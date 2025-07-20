@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { onAuthStateChange, logoutUser } from '../config/firebase.config';
-import { User as CustomUser, UserRole } from '../../types/user.type';
+import { User as CustomUser, UserRole } from '../types/auth.types';
 import { User as FirebaseUser } from 'firebase/auth';
-
 
 const Header: React.FC = () => {
   const [user, setUser] = useState<CustomUser | null>(null);
@@ -24,11 +23,12 @@ const Header: React.FC = () => {
           displayName: firebaseUser.displayName || '',
           firstName: '', // Fetch from your database
           lastName: '',  // Fetch from your database
-          role: 'admin' as UserRole,  // Temporarily set to admin for testing
+          role: 'super_admin' as UserRole,  // Use valid UserRole value
+          organizationId: '', // Add organizationId - fetch from database
+          permissions: [], // Add permissions array
           isActive: true, // Default value or fetch from database
           createdAt: new Date().toISOString(), // Convert to string
           updatedAt: new Date().toISOString(), // Convert to string
-          // Add other required CustomUser properties here
         };
         
         // Debug: Log the user object to see what we have
@@ -123,8 +123,8 @@ const Header: React.FC = () => {
                 >
                   Profile
                 </Link>
-                {/* Admin Dashboard Link */}
-                {user.role === 'admin' && (
+                {/* Super Admin Dashboard Link */}
+                {user.role === 'super_admin' && (
                   <Link
                     to="/admin"
                     className={navLinkClass("/admin")}

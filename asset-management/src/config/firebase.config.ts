@@ -19,7 +19,7 @@ export const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Import User type
-import { User, UserRole } from '../types/user.type';
+import { User, UserRole } from '../types/auth.types';
 
 // Auth functions
 export const loginUser = async (email: string, password: string): Promise<FirebaseUser> => {
@@ -61,7 +61,9 @@ export const registerUser = async (email: string, password: string): Promise<Fir
         firstName: 'Unknown',
         lastName: '',
         email: email,
-        role: 'employee' as UserRole,
+        role: 'user' as UserRole, // Changed from 'employee' to match your UserRole type
+        organizationId: '', // Add required organizationId field
+        permissions: [], // Add required permissions array
         isActive: true,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -141,11 +143,13 @@ export const fetchUserProfile = async (): Promise<User | null> => {
             firstName: user.displayName ? user.displayName.split(' ')[0] || 'Unknown' : 'Unknown',
             lastName: user.displayName ? user.displayName.split(' ')[1] || '' : '',
             email: user.email || 'N/A',
-            role: 'employee' as UserRole,
+            role: 'user' as UserRole, // Changed from 'employee' to match your UserRole type
+            organizationId: '', // Add required organizationId field
+            permissions: [], // Add required permissions array
             isActive: true,
             createdAt: user.metadata.creationTime || new Date().toISOString(),
             updatedAt: user.metadata.lastSignInTime || new Date().toISOString(),
-            lastLogin: user.metadata.lastSignInTime,
+            lastLogin: user.metadata.lastSignInTime || '', // Provide empty string fallback
             department: '',
             phone: '',
             name: user.displayName || '',
@@ -164,6 +168,8 @@ export const fetchUserProfile = async (): Promise<User | null> => {
               userProfile.createdAt = data.createdAt?.toDate?.()?.toISOString() || userProfile.createdAt;
               userProfile.updatedAt = data.updatedAt?.toDate?.()?.toISOString() || userProfile.updatedAt;
               userProfile.lastLogin = data.lastLogin || userProfile.lastLogin;
+              userProfile.organizationId = data.organizationId || userProfile.organizationId;
+              userProfile.permissions = data.permissions || userProfile.permissions;
               userProfile.department = data.department || userProfile.department;
               userProfile.phone = data.phone || userProfile.phone;
               userProfile.name = data.name || userProfile.name;

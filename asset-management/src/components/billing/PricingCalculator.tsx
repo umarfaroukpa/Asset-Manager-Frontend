@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { CreditCard, DollarSign, Zap, Check, X } from 'lucide-react';
 import Button from '../common/Button';
 
-
 interface PricingCalculatorProps {
   userType: string;
   onSubmit: (data: any) => void;
@@ -396,24 +395,24 @@ const PricingCalculator = ({
             onClick={handleSubmit}
             variant="primary"
             className="flex-1"
-            icon={<CreditCard className="w-5 h-5 mr-2" />}
           >
+            <CreditCard className="w-5 h-5 mr-2 inline" />
             Subscribe Now
           </Button>
           <Button
             onClick={handleReset}
             variant="secondary"
             className="flex-1"
-            icon={<Zap className="w-5 h-5 mr-2" />}
           >
+            <Zap className="w-5 h-5 mr-2 inline" />
             Reset
           </Button>
           <Button
             onClick={() => onSubmit(null)}
             variant="secondary"
             className="flex-1"
-            icon={<X className="w-5 h-5 mr-2" />}
           >
+            <X className="w-5 h-5 mr-2 inline" />
             Cancel
           </Button>
         </div>
