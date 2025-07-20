@@ -1,21 +1,35 @@
-// components/assets/PhysicalAssetForm.tsx
 import React, { useState } from 'react';
-import { 
-  QrCode, 
-  Camera, 
-  MapPin, 
-  Calendar, 
-  DollarSign,
-  Tag,
-  HardDrive,
-  User,
-  Info
-} from 'lucide-react';
+import { QrCode, MapPin, Calendar, DollarSign, Tag, HardDrive, Camera, User, Info } from 'lucide-react';
 import Input from '../common/Input';
 import Button from '../common/Button';
+import { AssetFormData } from '../../types/Assets';
 
-const PhysicalAssetForm = ({ onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
+interface PhysicalAssetFormProps {
+  onSubmit: (data: AssetFormData) => void;
+  onCancel: () => void;
+}
+
+interface PhysicalFormData {
+  name: string;
+  description: string;
+  serialNumber: string;
+  purchaseDate: string;
+  purchasePrice: string;
+  location: string;
+  category: string;
+  assignedTo: string;
+  notes: string;
+  qrCode: null;
+}
+
+interface PhysicalFormError {
+  name?: string;
+  category?: string;
+  purchasePrice?: string;
+}
+
+const PhysicalAssetForm: React.FC<PhysicalAssetFormProps> = ({ onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState<PhysicalFormData>({
     name: '',
     description: '',
     serialNumber: '',
@@ -29,17 +43,41 @@ const PhysicalAssetForm = ({ onSubmit, onCancel }) => {
   });
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<PhysicalFormError>({});
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const validate = (): PhysicalFormError => {
+    const newErrors: PhysicalFormError = {};
+    if (!formData.name || formData.name.length < 2) {
+      newErrors.name = 'Name is required (min 2 chars)';
+    }
+    if (!formData.category || formData.category.length < 2) {
+      newErrors.category = 'Category is required (min 2 chars)';
+    }
+    if (formData.purchasePrice && Number(formData.purchasePrice) < 0) {
+      newErrors.purchasePrice = 'Must be positive';
+    }
+    return newErrors;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validationErrors = validate();
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) return;
+    
     setLoading(true);
     try {
-      await onSubmit(formData);
+      // Convert string purchasePrice to number for AssetFormData
+      const submitData: AssetFormData = {
+        ...formData,
+        purchasePrice: formData.purchasePrice ? Number(formData.purchasePrice) : 0
+      };
+      await onSubmit(submitData);
     } catch (error) {
       console.error('Error submitting form:', error);
     } finally {
@@ -47,7 +85,7 @@ const PhysicalAssetForm = ({ onSubmit, onCancel }) => {
     }
   };
 
-  const handleQRScan = (data) => {
+  const handleQRScan = (data: string) => {
     if (data) {
       setFormData(prev => ({ ...prev, serialNumber: data }));
       setShowQRScanner(false);
@@ -64,6 +102,7 @@ const PhysicalAssetForm = ({ onSubmit, onCancel }) => {
           onChange={handleChange}
           required
           icon={<Tag className="w-5 h-5 text-gray-400" />}
+          error={errors.name}
         />
         
         <div>
@@ -106,6 +145,7 @@ const PhysicalAssetForm = ({ onSubmit, onCancel }) => {
           value={formData.category}
           onChange={handleChange}
           icon={<Tag className="w-5 h-5 text-gray-400" />}
+          error={errors.category}
         />
 
         <Input
@@ -124,6 +164,7 @@ const PhysicalAssetForm = ({ onSubmit, onCancel }) => {
           value={formData.purchasePrice}
           onChange={handleChange}
           icon={<DollarSign className="w-5 h-5 text-gray-400" />}
+          error={errors.purchasePrice}
         />
 
         <Input

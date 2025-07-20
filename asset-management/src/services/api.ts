@@ -39,38 +39,66 @@ apiClient.interceptors.response.use(
 );
 
 export const getAssets = async (params?: { search?: string; page?: number; status?: string }) => {
-  const response = await apiClient.get('/assets', { params });
-  return response.data;
+  try {
+    const response = await apiClient.get('/assets', { params });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch assets.');
+  }
 };
 
 export const getAssetById = async (id: string) => {
-  const response = await apiClient.get(`/assets/${id}`);
-  return response.data;
+  try {
+    const response = await apiClient.get(`/assets/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch asset details.');
+  }
 };
 
 export const createAsset = async (data: Partial<Asset>) => {
-  const response = await apiClient.post('/assets', data);
-  return response.data;
+  try {
+    const response = await apiClient.post('/assets', data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to create asset.');
+  }
 };
 
 export const updateAsset = async (id: string, data: Partial<Asset>) => {
-  const response = await apiClient.put(`/assets/${id}`, data);
-  return response.data;
+  try {
+    const response = await apiClient.put(`/assets/${id}`, data);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to update asset.');
+  }
 };
 
 export const assignAsset = async (id: string, userId: string) => {
-  const response = await apiClient.post(`/assets/${id}/assign`, { userId });
-  return response.data;
+  try {
+    const response = await apiClient.post(`/assets/${id}/assign`, { userId });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to assign asset.');
+  }
 };
 
 export const returnAsset = async (id: string) => {
-  const response = await apiClient.post(`/assets/${id}/return`);
-  return response.data;
+  try {
+    const response = await apiClient.post(`/assets/${id}/return`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to return asset.');
+  }
 };
 
 export const exportToCSV = async () => {
-  const response = await apiClient.get('/assets/export/csv', { responseType: 'blob' });
-  return response.data;
+  try {
+    const response = await apiClient.get('/assets/export/csv', { responseType: 'blob' });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to export assets to CSV.');
+  }
 };
 
 // This will export the API client for direct use if needed

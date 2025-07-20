@@ -1,7 +1,7 @@
 import React from 'react';
 import { ButtonProps } from '../../types/Common';
 
-const Button: React.FC<ButtonProps> = ({
+const Button: React.FC<ButtonProps & { 'aria-label'?: string }> = ({
   variant = 'primary',
   size = 'md',
   disabled = false,
@@ -10,6 +10,7 @@ const Button: React.FC<ButtonProps> = ({
   type = 'button',
   children,
   className = '',
+  'aria-label': ariaLabel,
 }) => {
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200';
   
@@ -43,6 +44,7 @@ const Button: React.FC<ButtonProps> = ({
       className={classes}
       disabled={disabled || loading}
       onClick={onClick}
+      aria-label={ariaLabel}
     >
       {loading && (
         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

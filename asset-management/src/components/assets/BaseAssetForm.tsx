@@ -1,8 +1,8 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { AssetFormData } from '../../../types/assets';
-import Input from '../../common/Input';
-import Button from '../../common/Button';
+import { AssetFormData } from '../../types/Assets';
+import Input from '../common/Input';
+import Button from '../common/Button';
 
 interface BaseAssetFormProps {
   onSubmit: (data: AssetFormData) => Promise<void>;
@@ -38,7 +38,10 @@ const BaseAssetForm: React.FC<BaseAssetFormProps> = ({
           <Input
             label="Asset Name"
             required
-            {...register('name', { required: 'Asset name is required' })}
+            {...register('name', {
+              required: 'Asset name is required',
+              minLength: { value: 2, message: 'Name must be at least 2 characters' }
+            })}
             error={errors.name?.message}
             placeholder="Enter asset name"
           />
@@ -48,7 +51,10 @@ const BaseAssetForm: React.FC<BaseAssetFormProps> = ({
           <Input
             label="Category"
             required
-            {...register('category', { required: 'Category is required' })}
+            {...register('category', {
+              required: 'Category is required',
+              minLength: { value: 2, message: 'Category must be at least 2 characters' }
+            })}
             error={errors.category?.message}
             placeholder="Enter category"
           />
@@ -75,7 +81,8 @@ const BaseAssetForm: React.FC<BaseAssetFormProps> = ({
             label="Purchase Price"
             type="number"
             {...register('purchasePrice', {
-              min: { value: 0, message: 'Must be positive' }
+              min: { value: 0, message: 'Must be positive' },
+              valueAsNumber: true
             })}
             error={errors.purchasePrice?.message}
             placeholder="0.00"

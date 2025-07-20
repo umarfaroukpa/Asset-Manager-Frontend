@@ -1,22 +1,19 @@
-// components/assets/AssetTypeTabs.tsx
 import React, { useState } from 'react';
-import { 
-  Package, 
-  Monitor, 
-  Car, 
-  Smartphone, 
-  Key, 
-  Server,
-  Home,
-  Book,
-  Tool,
-  Printer
-} from 'lucide-react';
+import { Package, Monitor, Car, Smartphone, Key, Server, Home, Book, Printer } from 'lucide-react';
+import { AssetFormData } from '../../types/Assets';
 import PhysicalAssetForm from './PhysicalAssetForm';
-import DigitalAssetForm from './';
-import VehicleAssetForm from './';
+import DigitalAssetForm from './DigitalAssetForm';
+import VehicleAssetForm from './VehicleAssetForm';
 
-const AssetTypeTabs = ({ onSubmit, onCancel }) => {
+
+
+
+interface AssetTypeTabsProps {
+  onSubmit: (data: AssetFormData) => void;
+  onCancel: () => void;
+}
+
+const AssetTypeTabs: React.FC<AssetTypeTabsProps> = ({ onSubmit, onCancel }) => {
   const [activeTab, setActiveTab] = useState('physical');
   
   const assetTypes = [

@@ -1,17 +1,6 @@
-// components/admin/AdminDashboard.tsx
 import React, { useState } from 'react';
-import { 
-  Users, 
-  Settings, 
-  Shield, 
-  Activity, 
-  PieChart,
-  Database,
-  Lock,
-  Bell,
-  Mail,
-  Key
-} from 'lucide-react';
+import { Users, Settings, Shield, Activity, PieChart, Database, Lock, Bell, Mail, Key } from 'lucide-react';
+    
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -30,7 +19,7 @@ const AdminDashboard = () => {
     { id: 'integrations', name: 'Integrations', icon: <Database className="w-5 h-5" /> }
   ];
 
-  const handleSecuritySettingChange = (setting, value) => {
+  const handleSecuritySettingChange = (setting: string, value: any) => {
     setSecuritySettings(prev => ({
       ...prev,
       [setting]: value

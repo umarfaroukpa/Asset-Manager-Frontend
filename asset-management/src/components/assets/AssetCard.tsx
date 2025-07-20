@@ -1,8 +1,8 @@
-// src/components/assets/AssetCard.tsx
+
 import React from 'react';
-import { Asset } from '../../types/assets';
+import { Asset } from '../../types/Assets';
 import { formatDate, formatCurrency } from '../../utils/formatters';
-import { Eye, Edit, Trash2, QrCode, MapPin, User, Package } from 'lucide-react';
+import { Eye, Edit, Trash2, QrCode, MapPin, User, Package, Calendar, DollarSign } from 'lucide-react';
 
 interface AssetCardProps {
   asset: Asset;

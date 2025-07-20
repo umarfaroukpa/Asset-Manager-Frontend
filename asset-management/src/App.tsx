@@ -8,33 +8,23 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 import Demo from './pages/Demo';
 
 // Keep other components lazy loaded
-const Login = lazy(() => import('./navigations/Login'));
-const Dashboard = lazy(() => import('./pages/DashboardPage'));
-const Register = lazy(() => import('./navigations/Register'));
+const Login = lazy(() => import('./components/auth/Login'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Register = lazy(() => import('./components/auth/Registration'));
 const Layout = lazy(() => import('./components/common/Layout'));
 const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
 const ReportBuilder = lazy(() => import('./components/reports/ReportBuilder'));
 const QRScannerComponent= lazy(() => import('./components/assets/QRScanner'));
-const OrganizationPage = lazy(() => import('./pages/OrganizationPage'));
+const OrganizationPage = lazy(() => import('./pages/Organizations'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const AdminDashboard = lazy(() => import('./admin/Admin'));
-const AssetPage = lazy(() => import('./pages/AssetPage'));
-const PaymentCallback = lazy(() => import('./pages/PaymentCallbackPage'));
+const AdminDashboard = lazy(() => import('./admin/AdminDashboard'));
+const AssetPage = lazy(() => import('./pages/Assetpage'));
+const PaymentCallback = lazy(() => import('./pages/PaymentCallback'));
 
 // Loading component for Suspense
 const PageLoader = () => (
   <div className="min-h-screen bg-gray-50 flex items-center justify-center">
     <LoadingSpinner />
-  </div>
-);
-
-// Simple test component
-const TestHomePage = () => (
-  <div className="min-h-screen bg-blue-50 flex items-center justify-center">
-    <div className="text-center">
-      <h1 className="text-4xl font-bold text-blue-600 mb-4">Homepage is Working!</h1>
-      <p className="text-lg text-gray-600">If you see this, routing is working correctly.</p>
-    </div>
   </div>
 );
 
@@ -95,7 +85,7 @@ function App() {
               <Route
                 path="/admin"
                 element={
-                  <ProtectedRoute requiredRole="admin">
+                  <ProtectedRoute>
                     <AdminDashboard />
                   </ProtectedRoute>
                 }
@@ -263,6 +253,7 @@ function App() {
                   <ProtectedRoute>
                     <Layout>
                           <QRScannerComponent 
+                        isOpen={true}
                         onScan={(result) => {
                           console.log('QR Code scanned:', result);
                           // Handle scan result here
