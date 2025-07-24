@@ -53,9 +53,9 @@ const Dashboard: React.FC = () => {
         return;
       }
 
-      // Use import.meta.env for Vite instead of process.env
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const url = `${baseUrl}/api/dashboard/stats`;
+      // import.meta.env for Vite 
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const url = `${baseUrl}/dashboard/stats`;
       
       // Debug log
       console.log('Fetching from URL:', url);

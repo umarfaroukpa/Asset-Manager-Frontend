@@ -1,8 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser, getIdToken } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { User, UserRole } from '../types/auth.types';
 
-// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCyzjBHJRXUCIUZK5s-XcTypje9adqESyw",
   authDomain: "asset-manager-fb9d3.firebaseapp.com",
@@ -13,19 +13,21 @@ const firebaseConfig = {
   measurementId: "G-N5EMCN8T3R",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Import User type
-import { User, UserRole } from '../types/auth.types';
+// Connect to emulator in development
+if (process.env.NODE_ENV === 'development') {
+  import('firebase/firestore').then(({ connectFirestoreEmulator }) => {
+    connectFirestoreEmulator(db, 'localhost', 3000);
+    console.log('Connected to Firestore emulator');
+  });
+}
 
-// Auth functions
 export const loginUser = async (email: string, password: string): Promise<FirebaseUser> => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    // Don't store token in localStorage here - Firebase handles it
     return userCredential.user;
   } catch (error: any) {
     console.error('Login error:', error.code, error.message);
@@ -50,20 +52,18 @@ export const loginUser = async (email: string, password: string): Promise<Fireba
 
 export const registerUser = async (email: string, password: string): Promise<FirebaseUser> => {
   try {
-    // Create the user account first
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-    
-    // Create user document in Firestore with better error handling
+
     try {
       const userDoc = doc(db, 'users', user.uid);
       const userData = {
         firstName: 'Unknown',
         lastName: '',
         email: email,
-        role: 'user' as UserRole, // Changed from 'employee' to match your UserRole type
-        organizationId: '', // Add required organizationId field
-        permissions: [], // Add required permissions array
+        role: 'user' as UserRole,
+        organizationId: '',
+        permissions: [],
         isActive: true,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -72,19 +72,16 @@ export const registerUser = async (email: string, password: string): Promise<Fir
         phone: '',
         name: '',
       };
-      
+      console.log('Writing user data:', userData);
       await setDoc(userDoc, userData);
       console.log('User document created successfully');
     } catch (firestoreError: any) {
       console.error('Firestore error while creating user document:', firestoreError);
-      // Don't throw here - user account is already created
     }
-    
+
     return user;
   } catch (error: any) {
     console.error('Register error:', error.code, error.message);
-    
-    // Handle specific Firebase Auth errors
     switch (error.code) {
       case 'auth/email-already-in-use':
         throw new Error('An account with this email already exists.');
@@ -103,7 +100,6 @@ export const registerUser = async (email: string, password: string): Promise<Fir
 export const logoutUser = async () => {
   try {
     await signOut(auth);
-    // Remove any stored tokens
     localStorage.removeItem('token');
     sessionStorage.removeItem('token');
   } catch (error) {
@@ -112,19 +108,16 @@ export const logoutUser = async () => {
   }
 };
 
-// Updated getCurrentToken function
 export const getCurrentToken = async (): Promise<string | null> => {
   try {
     const user = auth.currentUser;
     if (user) {
-      // Force refresh to get a fresh token
       const token = await getIdToken(user, true);
       console.log('Firebase token retrieved successfully');
       return token;
-    } else {
-      console.log('No current user found');
-      return null;
     }
+    console.log('No current user found');
+    return null;
   } catch (error) {
     console.error('Error getting Firebase token:', error);
     return null;
@@ -134,8 +127,7 @@ export const getCurrentToken = async (): Promise<string | null> => {
 export const fetchUserProfile = async (): Promise<User | null> => {
   return new Promise((resolve, reject) => {
     const unsubscribe = onAuthStateChanged(auth, async (user: FirebaseUser | null) => {
-      unsubscribe(); // Unsubscribe immediately to avoid memory leaks
-      
+      unsubscribe();
       if (user) {
         try {
           const userProfile: User = {
@@ -143,19 +135,18 @@ export const fetchUserProfile = async (): Promise<User | null> => {
             firstName: user.displayName ? user.displayName.split(' ')[0] || 'Unknown' : 'Unknown',
             lastName: user.displayName ? user.displayName.split(' ')[1] || '' : '',
             email: user.email || 'N/A',
-            role: 'user' as UserRole, // Changed from 'employee' to match your UserRole type
-            organizationId: '', // Add required organizationId field
-            permissions: [], // Add required permissions array
+            role: 'user' as UserRole,
+            organizationId: '',
+            permissions: [],
             isActive: true,
             createdAt: user.metadata.creationTime || new Date().toISOString(),
             updatedAt: user.metadata.lastSignInTime || new Date().toISOString(),
-            lastLogin: user.metadata.lastSignInTime || '', // Provide empty string fallback
+            lastLogin: user.metadata.lastSignInTime || '',
             department: '',
             phone: '',
             name: user.displayName || '',
           };
 
-          // Fetch from Firestore with error handling
           try {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
@@ -176,7 +167,6 @@ export const fetchUserProfile = async (): Promise<User | null> => {
             }
           } catch (firestoreError) {
             console.error('Error fetching user document from Firestore:', firestoreError);
-            // Continue with the profile from Auth data
           }
 
           resolve(userProfile);
@@ -188,8 +178,7 @@ export const fetchUserProfile = async (): Promise<User | null> => {
         resolve(null);
       }
     });
-    
-    // Set a timeout to prevent hanging
+
     setTimeout(() => {
       unsubscribe();
       reject(new Error('Authentication state check timed out'));
@@ -201,10 +190,8 @@ export const onAuthStateChange = (callback: (user: FirebaseUser | null) => void)
   return onAuthStateChanged(auth, callback);
 };
 
-// Helper function to check if Firestore is accessible
 export const checkFirestoreConnection = async (): Promise<boolean> => {
   try {
-    // Try to read a dummy document to test connection
     const testDoc = doc(db, 'test', 'connection');
     await getDoc(testDoc);
     return true;

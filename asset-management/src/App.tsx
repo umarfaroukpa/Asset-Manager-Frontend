@@ -6,6 +6,7 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 
 // Import Demo directly (not lazy) for debugging
 import Demo from './pages/Demo';
+import { AuthProvider } from './hooks/authcontext';
 
 // Keep other components lazy loaded
 const Login = lazy(() => import('./components/auth/Login'));
@@ -31,6 +32,7 @@ const PageLoader = () => (
 function App() {
   return (
     <ErrorBoundary>
+      <AuthProvider>
       <Router>
         <div className="App">
           <Suspense fallback={<PageLoader />}>
@@ -280,6 +282,7 @@ function App() {
           </Suspense>
         </div>
       </Router>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }
