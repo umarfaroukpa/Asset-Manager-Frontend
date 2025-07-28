@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Building, Users, Settings, Edit, Save, X, Mail, Phone, Globe, MapPin, Calendar, UserPlus, Shield, Activity, AlertTriangle, Trash2} from 'lucide-react';
+import { getOrganization, getOrganizationMembers } from '../services/api';
   
   
    interface OrganizationSettings {
@@ -44,75 +45,23 @@ const OrganizationPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [formData, setFormData] = useState<Organization | null>(null);
 
-  // Mock data - replace with actual API calls
+  // useEffect with API calls
   useEffect(() => {
-    setTimeout(() => {
-      setOrganization({
-        id: 1,
-        name: 'Acme Corporation',
-        description: 'Leading provider of innovative solutions for modern businesses',
-        industry: 'Technology',
-        size: '50-200 employees',
-        email: 'contact@acmecorp.com',
-        phone: '+1 (555) 123-4567',
-        website: 'https://acmecorp.com',
-        address: '123 Business Ave, Suite 100, New York, NY 10001',
-        foundedDate: '2018-03-15',
-        logo: null,
-        settings: {
-          allowPublicProfile: true,
-          requireApprovalForMembers: true,
-          enableTwoFactor: false,
-          allowDataExport: true,
-          enableApiAccess: false
-        }
-      });
-
-      setMembers([
-        {
-          id: 1,
-          name: 'John Doe',
-          email: 'john.doe@acmecorp.com',
-          role: 'admin',
-          department: 'Engineering',
-          joinDate: '2023-01-15',
-          status: 'active',
-          avatar: null
-        },
-        {
-          id: 2,
-          name: 'Jane Smith',
-          email: 'jane.smith@acmecorp.com',
-          role: 'manager',
-          department: 'Marketing',
-          joinDate: '2023-02-20',
-          status: 'active',
-          avatar: null
-        },
-        {
-          id: 3,
-          name: 'Mike Johnson',
-          email: 'mike.johnson@acmecorp.com',
-          role: 'user',
-          department: 'Sales',
-          joinDate: '2023-03-10',
-          status: 'inactive',
-          avatar: null
-        },
-        {
-          id: 4,
-          name: 'Sarah Wilson',
-          email: 'sarah.wilson@acmecorp.com',
-          role: 'manager',
-          department: 'HR',
-          joinDate: '2023-04-05',
-          status: 'active',
-          avatar: null
-        }
-      ]);
-
-      setLoading(false);
-    }, 1000);
+    const fetchOrganizationData = async () => {
+      setLoading(true);
+      try {
+        const orgData = await getOrganization();
+        setOrganization(orgData.organization || orgData);
+        setFormData(orgData.organization || orgData);
+        const membersData = await getOrganizationMembers();
+        setMembers(membersData.members || membersData);
+      } catch (err) {
+        console.error('Failed to fetch organization data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrganizationData();
   }, []);
 
   useEffect(() => {
@@ -133,7 +82,7 @@ const OrganizationPage = () => {
     if (formData) {
       setOrganization({...formData});
       setEditMode(false);
-      // Here you would typically make an API call to save the data
+      // Letter on here I would typically make an API call to save the data
     }
   };
 

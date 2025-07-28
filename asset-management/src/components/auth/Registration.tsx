@@ -49,7 +49,7 @@ const RegistrationForm = () => {
       // Register user with Firebase
       await registerUser(formData.email, formData.password);
       
-      // Create user profile in your database
+      // Create user profile in database
       const userProfile = {
         email: formData.email,
         userType: formData.userType,
@@ -65,7 +65,7 @@ const RegistrationForm = () => {
         plan: calculatePlan(formData.userType, formData.companySize, formData.assetCount)
       };
 
-      // Save to your database (mock API call)
+      // This will Save to  database 
       const response = await fetch('/api/users', {
         method: 'POST',
         headers: {

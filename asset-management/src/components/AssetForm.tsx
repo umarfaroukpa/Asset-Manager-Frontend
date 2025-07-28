@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Asset, AssetFormData } from '../types/Assets';
 import Input from './common/Input';
 import Button from './common/Button';
@@ -118,14 +118,16 @@ const AssetForm: React.FC<AssetFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+   <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <Input
             label="Asset Name"
             required
             value={formData.name}
-            onChange={(value: string) => handleInputChange('name', value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => 
+              handleInputChange('name', e.target.value)
+            }
             error={errors.name}
             placeholder="Enter asset name"
           />
@@ -157,8 +159,9 @@ const AssetForm: React.FC<AssetFormProps> = ({
           <Input
             label="Serial Number"
             value={formData.serialNumber}
-            onChange={(value: string) => handleInputChange('serialNumber', value)}
-            placeholder="Enter serial number"
+            onChange={(e: ChangeEvent<HTMLInputElement>) => 
+              handleInputChange('name', e.target.value)
+            }
           />
         </div>
 
@@ -185,7 +188,9 @@ const AssetForm: React.FC<AssetFormProps> = ({
             label="Purchase Date"
             type="date"
             value={formData.purchaseDate}
-            onChange={(value: string) => handleInputChange('purchaseDate', value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => 
+              handleInputChange('name', e.target.value)
+            }
           />
         </div>
 
@@ -194,7 +199,9 @@ const AssetForm: React.FC<AssetFormProps> = ({
             label="Purchase Price"
             type="number"
             value={formData.purchasePrice?.toString() || ''}
-            onChange={(value: string) => handleInputChange('purchasePrice', value ? parseFloat(value) : undefined)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => 
+              handleInputChange('purchasePrice', e.target.value ? parseFloat(e.target.value) : undefined)
+            }
             error={errors.purchasePrice}
             placeholder="0.00"
             min="0"

@@ -6,7 +6,7 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  displayName?: string; // Add displayName as optional field
+  displayName?: string; // Adding displayName as optional field
   lastLogin: string;
   role: UserRole;
   organizationId: string;

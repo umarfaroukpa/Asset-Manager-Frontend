@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 
 export interface SelectOption {
   value: string;
@@ -38,6 +38,7 @@ export interface ButtonProps {
   type?: 'button' | 'submit' | 'reset';
   children: React.ReactNode;
   className?: string;
+  icon?: React.ReactNode;
 }
 
 export interface ModalProps {
@@ -52,4 +53,33 @@ export interface ModalProps {
   className?: string;
   overlayClassName?: string;
   contentClassName?: string;
+}
+
+export interface InputProps {
+  label?: string;
+  error?: string;
+  required?: boolean;
+  type?: string;
+  placeholder?: string;
+  value?: string;
+  name?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void | ((value: string) => void);
+  className?: string;
+  icon?: React.ReactNode;
+  step?: string | number;
+  min?: string | number;
+  max?: string | number;
+}
+
+export interface TextareaProps {
+  label?: string;
+  error?: string;
+  required?: boolean;
+  placeholder?: string;
+  value?: string;
+  name?: string;
+  onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  className?: string;
+  icon?: React.ReactNode;
+  rows?: number;
 }

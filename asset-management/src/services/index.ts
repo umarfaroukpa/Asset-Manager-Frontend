@@ -1,4 +1,3 @@
-// Service exports for easy importing
 export { categoryService, useCategoryService } from './categoryService';
 export { assetService, useAssetService } from './assetService';
 

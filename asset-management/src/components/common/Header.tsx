@@ -16,7 +16,7 @@ const Header: React.FC = () => {
     const unsubscribe = onAuthStateChange((firebaseUser: FirebaseUser | null) => {
       try {
         if (firebaseUser) {
-          // Create custom user object from Firebase user
+          //This To Create custom user object from Firebase user
           const customUser: CustomUser = {
             id: firebaseUser.uid,
             email: firebaseUser.email || '',

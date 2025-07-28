@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { QrCode, X, Check, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { QrCode, X, Check, AlertCircle, CameraOff } from 'lucide-react';
 import Button from '../common/Button';
+import QrScanner from 'react-qr-scanner';
 
 interface AssetScannerProps {
   onScanComplete: (assetId: string) => void;
@@ -12,20 +13,34 @@ const AssetScanner: React.FC<AssetScannerProps> = ({ onScanComplete, onClose }) 
   const [error, setError] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const scannerRef = useRef<any>(null);
 
-  // Mock scanner - in a real app you'd use a library like react-qr-reader
-  const handleScan = () => {
-    setLoading(true);
-    setTimeout(() => {
-      if (Math.random() > 0.2) { // 80% chance of success
-        setScanResult(`ASSET-${Math.floor(Math.random() * 10000)}`);
-        setError(null);
-      } else {
-        setError('Failed to scan QR code. Please try again.');
-        setScanResult(null);
+  // Handle QR code scan
+  const handleScan = (data: string | null) => {
+    if (data) {
+      setLoading(true);
+      try {
+        // Validate the scanned data 
+        if (data.length > 0) {
+          setScanResult(data);
+          setError(null);
+        } else {
+          setError('Invalid QR code format');
+        }
+      } catch (err) {
+        setError('Failed to process QR code');
+        console.error('Scan error:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, 1500);
+    }
+  };
+
+  const handleError = (err: Error) => {
+    console.error('Scanner error:', err);
+    setError(err.message || 'Failed to access camera');
+    setCameraActive(false);
   };
 
   const handleConfirm = () => {
@@ -35,13 +50,37 @@ const AssetScanner: React.FC<AssetScannerProps> = ({ onScanComplete, onClose }) 
     }
   };
 
+  const startScanner = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Check camera permissions
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop());
+      setHasPermission(true);
+      
+      setCameraActive(true);
+    } catch (err) {
+      setHasPermission(false);
+      setError('Camera access denied. Please enable camera permissions.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const stopScanner = () => {
+    if (scannerRef.current) {
+      scannerRef.current.stop();
+    }
+    setCameraActive(false);
+  };
+
   useEffect(() => {
-    // In a real app, this would initialize the camera
-    setCameraActive(true);
+    startScanner();
     
     return () => {
-      // Clean up camera
-      setCameraActive(false);
+      stopScanner();
     };
   }, []);
 
@@ -50,6 +89,7 @@ const AssetScanner: React.FC<AssetScannerProps> = ({ onScanComplete, onClose }) 
       <button
         onClick={onClose}
         className="absolute top-4 right-4 text-white p-2"
+        aria-label="Close scanner"
       >
         <X className="w-6 h-6" />
       </button>
@@ -58,31 +98,42 @@ const AssetScanner: React.FC<AssetScannerProps> = ({ onScanComplete, onClose }) 
       
       {/* Scanner View */}
       <div className="relative w-full max-w-md aspect-square mb-6">
-        {cameraActive ? (
-          <div className="w-full h-full bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
-            {loading ? (
-              <div className="text-white">Loading scanner...</div>
-            ) : (
-              <div className="text-center">
-                <div className="border-4 border-white border-dashed rounded-lg p-8 mb-4">
-                  <QrCode className="w-16 h-16 mx-auto text-white" />
-                </div>
-                <p className="text-white">Align QR code within frame</p>
+        {hasPermission === false ? (
+          <div className="w-full h-full bg-gray-800 rounded-lg flex flex-col items-center justify-center text-white p-4">
+            <CameraOff className="w-16 h-16 mb-4 text-red-400" />
+            <p className="text-center">Camera access denied. Please check your browser permissions.</p>
+          </div>
+        ) : cameraActive ? (
+          <div className="w-full h-full bg-black rounded-lg overflow-hidden relative">
+            <QrScanner
+              ref={scannerRef}
+              delay={300}
+              onError={handleError}
+              onScan={handleScan}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+              constraints={{
+                facingMode: 'environment', // Prefer rear camera
+              }}
+            />
+            {/* Scanner overlay */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div className="border-2 border-white border-dashed rounded-lg w-64 h-64 relative">
+                <div className="absolute -top-1 -left-1 w-8 h-8 border-l-2 border-t-2 border-white" />
+                <div className="absolute -top-1 -right-1 w-8 h-8 border-r-2 border-t-2 border-white" />
+                <div className="absolute -bottom-1 -left-1 w-8 h-8 border-l-2 border-b-2 border-white" />
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 border-r-2 border-b-2 border-white" />
               </div>
-            )}
+            </div>
           </div>
         ) : (
           <div className="w-full h-full bg-gray-800 rounded-lg flex items-center justify-center text-white">
-            Camera not available
+            {loading ? 'Initializing scanner...' : 'Camera not active'}
           </div>
         )}
-        
-        {/* Scanner overlay */}
-        <div className="absolute inset-0 border-4 border-green-400 pointer-events-none" style={{
-          borderWidth: '40px',
-          borderColor: 'rgba(0, 0, 0, 0.5)',
-          clipPath: 'polygon(0% 0%, 0% 100%, 20% 100%, 20% 20%, 80% 20%, 80% 80%, 20% 80%, 20% 100%, 100% 100%, 100% 0%)'
-        }} />
       </div>
       
       {/* Scan Result or Error */}
@@ -91,7 +142,7 @@ const AssetScanner: React.FC<AssetScannerProps> = ({ onScanComplete, onClose }) 
           <Check className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
           <div>
             <p className="font-medium">Scanned successfully</p>
-            <p className="text-sm">Asset ID: {scanResult}</p>
+            <p className="text-sm break-all">Asset ID: {scanResult}</p>
           </div>
         </div>
       )}
@@ -108,30 +159,50 @@ const AssetScanner: React.FC<AssetScannerProps> = ({ onScanComplete, onClose }) 
       
       {/* Action Buttons */}
       <div className="flex space-x-4 w-full max-w-md">
-        <Button
-          onClick={handleScan}
-          variant="primary"
-          className="flex-1"
-          loading={loading}
-        >
-          {scanResult ? 'Scan Again' : 'Scan QR Code'}
-        </Button>
+        {!scanResult && (
+          <Button
+            onClick={startScanner}
+            variant="primary"
+            className="flex-1"
+            loading={loading}
+            disabled={hasPermission === false}
+          >
+            {cameraActive ? 'Scanning...' : 'Start Scanner'}
+          </Button>
+        )}
         
         {scanResult && (
-          <Button
-            onClick={handleConfirm}
-            variant="success"
-            className="flex-1"
-          >
-            <Check className="w-5 h-5 mr-2 inline" />
-            Confirm
-          </Button>
+          <>
+            <Button
+              onClick={() => {
+                setScanResult(null);
+                startScanner();
+              }}
+              variant="secondary"
+              className="flex-1"
+            >
+              Scan Again
+            </Button>
+            <Button
+              onClick={handleConfirm}
+              variant="success"
+              className="flex-1"
+            >
+              <Check className="w-5 h-5 mr-2 inline" />
+              Confirm
+            </Button>
+          </>
         )}
       </div>
       
-      {/* Offline Notice */}
-      <div className="mt-6 text-center text-gray-400 text-sm">
-        <p>Works offline - scans will sync when connection is restored</p>
+      {/* Help Text */}
+      <div className="mt-6 text-center text-gray-400 text-sm max-w-md">
+        <p>Point your camera at the asset QR code. Scanning happens automatically.</p>
+        {hasPermission === false && (
+          <p className="text-red-300 mt-2">
+            You need to enable camera permissions in your browser settings.
+          </p>
+        )}
       </div>
     </div>
   );

@@ -27,24 +27,35 @@ if (process.env.NODE_ENV === 'development') {
 
 export const loginUser = async (email: string, password: string): Promise<FirebaseUser> => {
   try {
+    console.log('Attempting login with email:', email);
+    console.log('Firebase config project ID:', firebaseConfig.projectId);
+    
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    console.log('Login successful for user:', userCredential.user.uid);
     return userCredential.user;
   } catch (error: any) {
-    console.error('Login error:', error.code, error.message);
+    console.error('Full error object:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    console.error('Error details:', error.customData);
+    
     switch (error.code) {
       case 'auth/invalid-credential':
+      case 'auth/wrong-password':
+      case 'auth/user-not-found':
         throw new Error('Invalid email or password. Please try again.');
       case 'auth/user-disabled':
         throw new Error('This account has been disabled.');
-      case 'auth/user-not-found':
-        throw new Error('No account found with this email.');
-      case 'auth/wrong-password':
-        throw new Error('Invalid email or password. Please try again.');
       case 'auth/invalid-email':
         throw new Error('Invalid email address.');
       case 'auth/too-many-requests':
         throw new Error('Too many failed attempts. Please try again later.');
+      case 'auth/network-request-failed':
+        throw new Error('Network error. Please check your connection and try again.');
+      case 'auth/operation-not-allowed':
+        throw new Error('Email/password sign-in is not enabled.');
       default:
+        console.error('Unhandled auth error:', error.code, error.message);
         throw new Error('An error occurred during login. Please try again later.');
     }
   }

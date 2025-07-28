@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Package,  Plus, Search,  Filter, Download,  Upload, Eye, Edit,  Trash2,  MapPin, Calendar, DollarSign, AlertTriangle, } from 'lucide-react';
+import { getAssets } from '../services/api';
   
  
 
@@ -26,46 +27,20 @@ const AssetsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Mock data - replace with actual API calls
+  // Remove mock data useEffect and replace with real API call
   useEffect(() => {
-    setTimeout(() => {
-      setAssets([
-        {
-          id: 1,
-          name: 'MacBook Pro 16"',
-          category: 'Electronics',
-          status: 'active',
-          assignedTo: 'John Doe',
-          location: 'Office Floor 2',
-          purchaseDate: '2024-01-15',
-          value: 2500,
-          serialNumber: 'MBP2024001',
-        },
-        {
-          id: 2,
-          name: 'Office Chair - Ergonomic',
-          category: 'Furniture',
-          status: 'active',
-          assignedTo: 'Jane Smith',
-          location: 'Office Floor 1',
-          purchaseDate: '2023-12-10',
-          value: 450,
-          serialNumber: 'CHAIR001',
-        },
-        {
-          id: 3,
-          name: 'Dell Monitor 27"',
-          category: 'Electronics',
-          status: 'maintenance',
-          assignedTo: null,
-          location: 'IT Storage',
-          purchaseDate: '2023-08-20',
-          value: 320,
-          serialNumber: 'DELL27001',
-        },
-      ]);
-      setLoading(false);
-    }, 1000);
+    const fetchAssets = async () => {
+      setLoading(true);
+      try {
+        const data = await getAssets();
+        setAssets(data.assets || data); // Adjust depending on API response shape
+      } catch (err) {
+        console.error('Failed to fetch assets:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAssets();
   }, []);
 
   const filteredAssets = assets.filter((asset) => {

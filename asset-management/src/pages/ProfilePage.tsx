@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Phone, Calendar, Briefcase, Edit3, Save, X, Camera, Bell, Shield, Globe, Moon, Sun, Monitor, Smartphone, Lock, Eye, EyeOff, Activity, MapPin } from 'lucide-react';
+import { getUserProfile } from '../services/api';
 
 interface User {
   id: number;
@@ -53,42 +54,18 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    setTimeout(() => {
-      setUser({
-        id: 1,
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@acmecorp.com',
-        phone: '+1 (555) 123-4567',
-        jobTitle: 'Senior Software Engineer',
-        department: 'Engineering',
-        location: 'New York, NY',
-        bio: 'Passionate software engineer with 8+ years of experience in full-stack development. Love building scalable applications and mentoring junior developers.',
-        joinDate: '2023-01-15',
-        avatar: null,
-        socialLinks: {
-          linkedin: 'https://linkedin.com/in/johndoe',
-          twitter: 'https://twitter.com/johndoe',
-          github: 'https://github.com/johndoe',
-        },
-        preferences: {
-          theme: 'light',
-          language: 'en',
-          timezone: 'America/New_York',
-          notifications: {
-            email: true,
-            push: true,
-            sms: false,
-          },
-        },
-        security: {
-          twoFactorEnabled: false,
-          lastPasswordChange: '2024-01-15',
-          activeSessions: 3,
-        },
-      });
-      setLoading(false);
-    }, 1000);
+    const fetchUserProfile = async () => {
+      setLoading(true);
+      try {
+        const data = await getUserProfile();
+        setUser(data.user || data);
+      } catch (err) {
+        console.error('Failed to fetch user profile:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserProfile();
   }, []);
 
   useEffect(() => {

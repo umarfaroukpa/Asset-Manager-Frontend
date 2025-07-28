@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { CreditCard, Lock, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 import { toast } from 'react-toastify';
-import paymentService, { SubscriptionData, PaymentData } from '../../services/paymentService';
-import Modal from '../common/Modal';
-import Button from '../common/Button';
+import paymentService, { SubscriptionData, PaymentData } from '../services/paymentService';
+import Modal from './common/Modal';
+import Button from './common/Button';
 
 interface PaymentModalProps {
   isOpen: boolean;

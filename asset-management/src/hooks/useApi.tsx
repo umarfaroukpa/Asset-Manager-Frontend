@@ -50,7 +50,8 @@ const createApiInstance = (): AxiosInstance => {
     headers: {
       'Content-Type': 'application/json',
     },
-    withCredentials: false, // Set to true if your backend uses cookies
+    // This can be set to true if backend uses cookies for authentication
+    withCredentials: false, 
   });
 
   // Request interceptor to add auth token
