@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser, getIdToken } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { User, UserRole } from '../types/auth.types';
+import { Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCyzjBHJRXUCIUZK5s-XcTypje9adqESyw",
@@ -16,6 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 const db = getFirestore(app);
+export { db };
 
 // Connect to emulator in development
 if (process.env.NODE_ENV === 'development') {

@@ -380,7 +380,7 @@ const LandingPage = () => {
       {/* Navigation with enhanced styling */}
       <nav className="flex justify-between items-center mb-8 px-4 sm:px-6 lg:px-8 pt-6 relative z-10">
         <div className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent cursor-pointer transform hover:scale-105 transition-transform duration-200">
-          AssetManager Pro
+          Asset Manager 
         </div>
         <div className="flex items-center space-x-4">
           <button

@@ -1,5 +1,27 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
+import { getCurrentToken } from '../config/firebase.config'; 
 import { Asset } from '../types/Assets';
+
+interface GetAssetsParams {
+  search?: string;
+  page?: number;
+  status?: string;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+interface AssetsResponse {
+  success: boolean;
+  assets: Asset[];
+  pagination: Pagination;
+}
+interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
 
 // Create API client with dynamic base URL
 const apiClient: AxiosInstance = axios.create({
@@ -10,12 +32,12 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+
+// apiClient.interceptors.request.use
 apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
+  async (config) => {
+    const token = await getCurrentToken(); // Use Firebase's current token
     console.log('🔑 Token being sent:', token ? 'Present' : 'Missing');
-    console.log('🌐 Making request to:', `${config.baseURL || ''}${config.url || ''}`);
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -82,12 +104,47 @@ const handleApiError = (error: any, operation: string) => {
 };
 
 // Asset-related API calls
-export const getAssets = async (params?: { search?: string; page?: number; status?: string }) => {
+export const getAssets = async (params?: GetAssetsParams): Promise<AssetsResponse> => {
   try {
-    const response = await apiClient.get('/assets', { params });
-    return response.data;
+    const response = await apiClient.get('/assets', {params} );
+
+    // Transform backend response to frontend format
+    const transformedAssets = (response.data.assets || []).map((asset: any) => ({
+      id: asset._id || asset.id,
+      name: asset.name,
+      category: asset.category,
+      status: asset.status,
+      serialNumber: asset.serialNumber,
+      purchaseDate: asset.purchaseDate,
+      value: asset.purchasePrice || asset.value || 0,
+      location: asset.location,
+      assignedTo: asset.assignedTo,
+      qrCode: asset.qrCode,
+    }));
+      
+    // Normalize the response
+    return {
+      success: true,
+      assets: transformedAssets,
+      pagination: response.data.pagination || {
+        page: params?.page || 1,
+        limit: params?.limit || 10,
+        total: transformedAssets.length,
+        pages: 1
+      }
+    };
   } catch (error) {
-    handleApiError(error, 'Failed to fetch assets');
+    console.error('Error fetching assets:', error);
+    return {
+      success: false,
+      assets: [],
+      pagination: {
+        page: params?.page || 1,
+        limit: params?.limit || 10,
+        total: 0,
+        pages: 0
+      }
+    };
   }
 };
 

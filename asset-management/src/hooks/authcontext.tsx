@@ -1,4 +1,6 @@
 import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../config/firebase.config';
 
 interface Organization {
   id: string;
@@ -53,6 +55,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(false);
     }
   }, []);
+
+  // Add this to your auth context or main App component
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      try {
+        const token = await user.getIdToken();
+        localStorage.setItem('token', token);
+      } catch (error) {
+        console.error('Token refresh failed:', error);
+        logout();
+      }
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
 
   const verifyToken = async (token: string): Promise<void> => {
     try {

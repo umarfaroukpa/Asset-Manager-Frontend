@@ -1,15 +1,38 @@
-import React, { useState } from 'react';
-import { Users, Settings, Shield, Activity, PieChart, Database, Lock, Bell, Mail, Key } from 'lucide-react';
-    
+import React, { useState, useEffect } from 'react';
+import { Users, Settings, Shield, Activity, PieChart, Database, Bell, Mail, Key } from 'lucide-react';
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import { getAnalyticsData } from '../services/analyticsService';
+import { generateMockData, AnalyticsData } from '../utils/analyticsUtils';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [analyticsData, setAnalyticsData] = useState<{
+    userData: AnalyticsData[];
+    assetData: AnalyticsData[];
+    activityData: AnalyticsData[];
+  }>({
+    userData: [],
+    assetData: [],
+    activityData: []
+  });
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [useMockData, setUseMockData] = useState(false);
+
+  // Security settings state
   const [securitySettings, setSecuritySettings] = useState({
-    twoFactorRequired: true,
+    twoFactorRequired: false,
     passwordExpiry: 90,
     failedAttempts: 5,
     sessionTimeout: 30
   });
+
+  // Security settings handler
+  const handleSecuritySettingChange = (setting: string, value: any) => {
+    setSecuritySettings(prev => ({
+      ...prev,
+      [setting]: value
+    }));
+  };
 
   const tabs = [
     { id: 'overview', name: 'Overview', icon: <Activity className="w-5 h-5" /> },
@@ -19,12 +42,33 @@ const AdminDashboard = () => {
     { id: 'integrations', name: 'Integrations', icon: <Database className="w-5 h-5" /> }
   ];
 
-  const handleSecuritySettingChange = (setting: string, value: any) => {
-    setSecuritySettings(prev => ({
-      ...prev,
-      [setting]: value
-    }));
+  const fetchAnalyticsData = async () => {
+    setAnalyticsLoading(true);
+    try {
+      let data;
+      
+      if (useMockData) {
+        data = generateMockData(60); // 60 days of mock data
+      } else {
+        data = await getAnalyticsData();
+      }
+      
+      setAnalyticsData(data);
+    } catch (error) {
+      console.error('Failed to fetch analytics data:', error);
+      // Fallback to mock data if real data fails
+      setAnalyticsData(generateMockData(60));
+      setUseMockData(true);
+    } finally {
+      setAnalyticsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (activeTab === 'analytics') {
+      fetchAnalyticsData();
+    }
+  }, [activeTab]);
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -48,6 +92,43 @@ const AdminDashboard = () => {
       </div>
       
       <div className="p-6">
+        {/* Analytics Tab */}
+        {activeTab === 'analytics' && (
+          <div className="space-y-6">
+            {useMockData && (
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700">
+                      Currently showing mock data. {!useMockData && (
+                        <button 
+                          onClick={() => fetchAnalyticsData()}
+                          className="font-medium underline hover:text-yellow-600"
+                        >
+                          Retry real data
+                        </button>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <AnalyticsDashboard 
+              userData={analyticsData.userData}
+              assetData={analyticsData.assetData}
+              activityData={analyticsData.activityData}
+              loading={analyticsLoading}
+              refreshData={fetchAnalyticsData}
+            />
+          </div>
+        )}
+        
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
@@ -113,8 +194,84 @@ const AdminDashboard = () => {
         {/* User Management Tab */}
         {activeTab === 'users' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-900">User Management</h2>
-            <p>User management content goes here...</p>
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-900">User Management</h2>
+              <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                Add User
+              </button>
+            </div>
+            
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">Active Users</h3>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        User
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Role
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Last Login
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {[1, 2, 3, 4, 5].map((user) => (
+                      <tr key={user}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-gray-300"></div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                User {user}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                user{user}@example.com
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                            {user === 1 ? 'Admin' : user === 2 ? 'Manager' : 'User'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                            Active
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date().toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <button className="text-indigo-600 hover:text-indigo-900 mr-4">
+                            Edit
+                          </button>
+                          <button className="text-red-600 hover:text-red-900">
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
         
@@ -248,19 +405,46 @@ const AdminDashboard = () => {
           </div>
         )}
         
-        {/* Analytics Tab */}
-        {activeTab === 'analytics' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold text-gray-900">Analytics</h2>
-            <p>Analytics content goes here...</p>
-          </div>
-        )}
-        
         {/* Integrations Tab */}
         {activeTab === 'integrations' && (
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-gray-900">Integrations</h2>
-            <p>Integrations content goes here...</p>
+            
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Available Integrations</h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                      <Database className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">Slack Integration</h4>
+                      <p className="text-sm text-gray-500">Get notifications in Slack channels</p>
+                    </div>
+                  </div>
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Connect
+                  </button>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                      <Mail className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900">Email Notifications</h4>
+                      <p className="text-sm text-gray-500">Send email alerts for important events</p>
+                    </div>
+                  </div>
+                  <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    Configure
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

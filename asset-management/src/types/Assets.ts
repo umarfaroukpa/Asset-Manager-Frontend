@@ -4,13 +4,18 @@ export interface Asset {
   name: string;
   description?: string;
   category: string;
-  type: 'physical' | 'digital' | 'vehicle' | 'equipment';
-  status: 'available' | 'assigned' | 'maintenance' | 'retired';
+  type?: 'physical' | 'digital' | 'vehicle' | 'equipment';
+  status: 'available' | 'assigned' | 'maintenance' | 'retired' | 'active';
   serialNumber?: string;
   purchaseDate?: string;
   purchasePrice?: number;
+  value?: number;
   location?: string;
-  assignedTo?: any; // Can be string or User object
+  assignedTo?: {
+    id: string;
+    name: string;
+    email?: string;
+  };
   tags?: string[];
   qrCode?: string;
   createdAt?: string;

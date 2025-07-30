@@ -144,12 +144,11 @@ const Header: React.FC = () => {
 
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link 
-            to={user ? "/dashboard" : "/"} 
-            className="text-2xl font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
-          >
-            AssetManager
-          </Link>
+          <img 
+              src="/Modified-Logo.png" 
+              alt="Company Logo" 
+              className="w-20 h-20 mr-4" 
+            />
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
