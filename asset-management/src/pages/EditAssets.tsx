@@ -96,7 +96,7 @@ const EditAsset: React.FC = () => {
 
       const result = await response.json();
       
-      // Show success message (you can use a toast library here)
+      // Show success message 
       alert('Asset updated successfully!');
       
       // Navigate to the asset details page

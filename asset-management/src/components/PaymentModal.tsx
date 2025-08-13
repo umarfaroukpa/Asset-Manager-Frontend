@@ -242,8 +242,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title=""
-      // Remove size prop since Modal doesn't accept it
-      // If you need to control Modal size, you'll need to update the Modal component
     >
       {renderContent()}
     </Modal>

@@ -15,6 +15,7 @@ export interface Asset {
     id: string;
     name: string;
     email?: string;
+    username?: string;
   };
   tags?: string[];
   qrCode?: string;

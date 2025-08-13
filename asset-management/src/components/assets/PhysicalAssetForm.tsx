@@ -242,7 +242,7 @@ const PhysicalAssetForm: React.FC<PhysicalAssetFormProps> = ({ onSubmit, onCance
             </div>
             
             <div className="bg-gray-200 h-64 rounded-md flex items-center justify-center">
-              {/* In a real app, you would integrate with a QR scanner library */}
+              {/* Placeholder for QR Scanner */}
               <div className="text-center">
                 <Camera className="w-12 h-12 mx-auto text-gray-400 mb-2" />
                 <p className="text-gray-500">QR Scanner would appear here</p>

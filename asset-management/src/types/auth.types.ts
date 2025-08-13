@@ -1,7 +1,7 @@
 export type UserRole = 'user' | 'admin' | 'owner' |'manager';
 export type SubscriptionPlan = 'free' | 'basic' | 'premium';
 
-export interface User {
+export interface AppUser {
   id: string;
   email: string;
   firstName: string;
@@ -31,17 +31,17 @@ export interface Organization {
   currentUsers: number;
   createdAt: string;
   updatedAt: string;
-  staff?: User[];
+  staff?: AppUser[];
 }
 
 export interface LoginResponse {
   token: string;
-  user: User;
+  user: AppUser;
   organization: Organization;
 }
 
 export interface RegisterResponse {
   token: string;
-  user: User;
+  user: AppUser;
   organization: Organization;
 }

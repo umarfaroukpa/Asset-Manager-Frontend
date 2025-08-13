@@ -48,7 +48,8 @@ const AdminDashboard = () => {
       let data;
       
       if (useMockData) {
-        data = generateMockData(60); // 60 days of mock data
+        // 60 days of mock data
+        data = generateMockData(60); 
       } else {
         data = await getAnalyticsData();
       }

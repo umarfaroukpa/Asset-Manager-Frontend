@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { onAuthStateChange, logoutUser } from '../../config/firebase.config';
-import { User as CustomUser, UserRole } from '../../types/auth.types';
-import { User as FirebaseUser } from 'firebase/auth';
+import { AppUser, UserRole } from '../../types/auth.types';
 
 const Header: React.FC = () => {
-  const [user, setUser] = useState<CustomUser | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -13,38 +12,23 @@ const Header: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChange((firebaseUser: FirebaseUser | null) => {
+    const unsubscribe = onAuthStateChange((appUser: AppUser | null) => {
       try {
-        if (firebaseUser) {
-          //This To Create custom user object from Firebase user
-          const customUser: CustomUser = {
-            id: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            displayName: firebaseUser.displayName || '',
-            firstName: firebaseUser.displayName?.split(' ')[0] || '', // Extract from displayName if available
-            lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '', // Extract remaining as lastName
-            role: 'admin' as UserRole, // TODO: Fetch actual role from database
-            organizationId: '', // TODO: Fetch from database
-            permissions: [], // TODO: Fetch from database
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            lastLogin: new Date().toISOString(),
-            department: '', // TODO: Fetch from database
-            phone: '', // TODO: Fetch from database
-            name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || '',
-          };
-          
-          console.log('User authenticated:', {
-            id: customUser.id,
-            email: customUser.email,
-            role: customUser.role,
-            displayName: customUser.displayName
+        if (appUser) {
+          console.log('🔍 DEBUG: User authenticated with role:', {
+            id: appUser.id,
+            email: appUser.email,
+            role: appUser.role,
+            displayName: appUser.displayName,
+            isAdmin: appUser.role === 'admin',
+            isOwner: appUser.role === 'owner',
+            shouldShowAdmin: (appUser.role === 'admin' || appUser.role === 'owner')
           });
-          
-          setUser(customUser);
+
+          setUser(appUser);
           setAuthError(null);
         } else {
+          console.log('🔍 DEBUG: No user authenticated');
           setUser(null);
         }
       } catch (error) {
@@ -76,9 +60,9 @@ const Header: React.FC = () => {
   };
 
   const navLinkClass = (path: string) => {
-    const baseClass = "px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200";
-    const activeClass = "bg-indigo-100 text-indigo-700";
-    const inactiveClass = "text-gray-700 hover:text-indigo-600 hover:bg-gray-50";
+    const baseClass = 'px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200';
+    const activeClass = 'bg-indigo-100 text-indigo-700';
+    const inactiveClass = 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50';
     
     return `${baseClass} ${isActiveRoute(path) ? activeClass : inactiveClass}`;
   };
@@ -92,6 +76,17 @@ const Header: React.FC = () => {
 
   const getUserDisplayName = () => {
     return user?.displayName || user?.name || user?.email?.split('@')[0] || 'User';
+  };
+
+  // Debug function to check admin access
+  const shouldShowAdminDashboard = () => {
+    const hasAccess = user?.role === 'admin' || user?.role === 'owner';
+    console.log('🔍 DEBUG: Admin dashboard access check:', {
+      userRole: user?.role,
+      hasAccess,
+      condition: `${user?.role} === 'admin' || ${user?.role} === 'owner'`
+    });
+    return hasAccess;
   };
 
   if (loading) {
@@ -115,6 +110,13 @@ const Header: React.FC = () => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="container mx-auto px-4 py-4">
+        {/* Debug Info - Remove this in production */}
+        {user && process.env.NODE_ENV === 'development' && (
+          <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+            <strong>DEBUG:</strong> Role: {user.role} | Admin Access: {shouldShowAdminDashboard() ? 'YES' : 'NO'}
+          </div>
+        )}
+
         {/* Auth Error Alert */}
         {authError && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
@@ -145,10 +147,10 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <img 
-              src="/Modified-Logo.png" 
-              alt="Company Logo" 
-              className="w-20 h-20 mr-4" 
-            />
+            src="/Modified-Logo.png" 
+            alt="Company Logo" 
+            className="w-20 h-20 mr-4" 
+          />
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
@@ -181,10 +183,11 @@ const Header: React.FC = () => {
                 </Link>
                 
                 {/* Admin Dashboard Link */}
-                {(user.role === 'admin' || user.role === 'owner') && (
+                {shouldShowAdminDashboard() && (
                   <Link
                     to="/admin"
-                    className={navLinkClass("/admin")}
+                    className={`${navLinkClass("/admin")} bg-red-50 border border-red-200`}
+                    title={`Admin access granted for role: ${user.role}`}
                   >
                     Admin Dashboard
                   </Link>
@@ -294,11 +297,12 @@ const Header: React.FC = () => {
                   </Link>
                   
                   {/* Admin Dashboard Link - Mobile */}
-                  {(user.role === 'admin' || user.role === 'owner') && (
+                  {shouldShowAdminDashboard() && (
                     <Link
                       to="/admin"
-                      className={`${navLinkClass("/admin")} block`}
+                      className={`${navLinkClass("/admin")} block bg-red-50 border border-red-200`}
                       onClick={() => setIsMenuOpen(false)}
+                      title={`Admin access granted for role: ${user.role}`}
                     >
                       Admin Dashboard
                     </Link>

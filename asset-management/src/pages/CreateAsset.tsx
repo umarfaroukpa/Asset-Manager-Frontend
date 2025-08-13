@@ -16,7 +16,7 @@ const CreateAsset: React.FC = () => {
 
   const fetchFormData = async () => {
     try {
-      // Fetch categories and locations - replace with your actual API calls
+      // Fetch categories and locations we can refacture with your actual API calls
       const [categoriesResponse, locationsResponse] = await Promise.all([
         fetch('/api/categories'),
         fetch('/api/locations')
@@ -71,7 +71,7 @@ const CreateAsset: React.FC = () => {
 
       const result = await response.json();
       
-      // Show success message (you can use a toast library here)
+      // Show success message reminding myself that will toast library next
       alert('Asset created successfully!');
       
       // Navigate to the asset details page or back to dashboard

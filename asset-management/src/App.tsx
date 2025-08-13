@@ -14,13 +14,15 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Register = lazy(() => import('./components/auth/Registration'));
 const Layout = lazy(() => import('./components/common/Layout'));
 const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
-const ReportBuilder = lazy(() => import('./components/reports/ReportBuilder'));
+const ReportBuilderPage = lazy(() => import('./pages/ReportBuilderPage'));
+const ReportsListPage = lazy(() => import('./pages/ReportsListPage'));
 const QRScannerComponent= lazy(() => import('./components/assets/QRScanner'));
 const OrganizationPage = lazy(() => import('./pages/Organizations'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AdminDashboard = lazy(() => import('./admin/AdminDashboard'));
 const AssetPage = lazy(() => import('./pages/Assetpage'));
 const PaymentCallback = lazy(() => import('./pages/PaymentCallback'));
+const AssignAsset = lazy(() => import('./components/assets/AssignAsset'));
 
 // Loading component for Suspense
 const PageLoader = () => (
@@ -128,126 +130,84 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              
-              {/* Report Builder route - Fixed with proper interface */}
+
+              {/* Assign Asset route */}
               <Route
-                path="/reports/generate"
+                path="/assets/assign"
                 element={
                   <ProtectedRoute>
                     <Layout>
-                      <ReportBuilder 
-                        reportTypes={[
-                          {
-                            id: 'asset-summary',
-                            name: 'Asset Summary',
-                            icon: <BarChart2 className="w-5 h-5" />,
-                            description: 'Overview of all assets',
-                            chartType: 'bar'
-                          },
-                          {
-                            id: 'maintenance-report',
-                            name: 'Maintenance Report',
-                            icon: <LineChart className="w-5 h-5" />,
-                            description: 'Maintenance schedule and history',
-                            chartType: 'line'
-                          },
-                          {
-                            id: 'location-report',
-                            name: 'Location Report',
-                            icon: <PieChart className="w-5 h-5" />,
-                            description: 'Assets by location',
-                            chartType: 'pie'
-                          }
-                        ]}
-                        availableFilters={[
-                          {
-                            id: 'date',
-                            label: 'Date Range',
-                            type: 'date'
-                          },
-                          {
-                            id: 'location',
-                            label: 'Location',
-                            type: 'select',
-                            options: [
-                              { value: 'all', label: 'All Locations' },
-                              { value: 'office', label: 'Office' },
-                              { value: 'warehouse', label: 'Warehouse' },
-                              { value: 'remote', label: 'Remote' }
-                            ]
-                          },
-                          {
-                            id: 'category',
-                            label: 'Category',
-                            type: 'select',
-                            options: [
-                              { value: 'all', label: 'All Categories' },
-                              { value: 'electronics', label: 'Electronics' },
-                              { value: 'furniture', label: 'Furniture' },
-                              { value: 'vehicles', label: 'Vehicles' }
-                            ]
-                          },
-                          {
-                            id: 'status',
-                            label: 'Status',
-                            type: 'select',
-                            options: [
-                              { value: 'all', label: 'All Status' },
-                              { value: 'active', label: 'Active' },
-                              { value: 'inactive', label: 'Inactive' },
-                              { value: 'maintenance', label: 'In Maintenance' }
-                            ]
-                          }
-                        ]}
-                        onGenerate={async (reportType, filters) => {
-                              try {
-                                // Real API call to generate report
-                                const response = await fetch(`${import.meta.env.VITE_API_URL}/reports/generate`, {
-                                  method: 'POST',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                                  },
-                                  body: JSON.stringify({
-                            type: reportType,
-                                    filters
-                                  })
-                                });
-
-                                if (!response.ok) {
-                                  throw new Error('Failed to generate report');
-                                }
-
-                                const reportData = await response.json();
-                                return reportData;
-                              } catch (error) {
-                                console.error('Report generation failed:', error);
-                                throw new Error('Failed to generate report. Please try again.');
-                              }
-                        }}
-                        onExport={(format, data) => {
-                              try {
-                                // Real API call to export report
-                                const exportUrl = `${import.meta.env.VITE_API_URL}/reports/export?format=${format}`;
-                                window.open(exportUrl, '_blank');
-                              } catch (error) {
-                                console.error('Export failed:', error);
-                                // Fallback: download as JSON
-                                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                                const url = window.URL.createObjectURL(blob);
-                                const link = document.createElement('a');
-                                link.href = url;
-                                link.download = `report-${Date.now()}.json`;
-                                link.click();
-                                window.URL.revokeObjectURL(url);
-                              }
-                        }}
-                      />
+                      <AssignAsset />
                     </Layout>
                   </ProtectedRoute>
                 }
               />
-              
+
+              {/* Report Builder - Main route */}
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                   <Layout>
+                     <ReportBuilderPage />
+                    </Layout>
+                </ProtectedRoute>
+              }
+             />
+
+             {/* Report Builder - Create new report */}
+            <Route
+                path="/reports/new"
+              element={
+              <ProtectedRoute>
+                <Layout>
+                 <ReportBuilderPage mode="create" />
+                </Layout>
+               </ProtectedRoute>
+              }
+            />
+
+{/* Report Builder - Edit existing report */}
+<Route
+  path="/reports/edit/:reportId"
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <ReportBuilderPage mode="edit" />
+      </Layout>
+    </ProtectedRoute>
+  }
+/>
+
+{/* Report Builder - View/Preview report */}
+<Route
+  path="/reports/view/:reportId"
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <ReportBuilderPage mode="view" />
+      </Layout>
+    </ProtectedRoute>
+  }
+/>
+
+{/* Reports Dashboard/List */}
+<Route
+  path="/reports/dashboard"
+  element={
+    <ProtectedRoute>
+      <Layout>
+        <ReportsListPage />
+      </Layout>
+    </ProtectedRoute>
+  }
+/>
+
+              {/* Redirect /report to /reports for backwards compatibility */}
+                     <Route
+                       path="/report"
+                   element={<Navigate to="/reports" replace />}
+                        />
               {/* QR Scanner route - Fixed with required props */}
               <Route
                 path="/assets/scan"

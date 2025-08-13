@@ -31,6 +31,20 @@ const BaseAssetForm: React.FC<BaseAssetFormProps> = ({
     }
   };
 
+  // Helper function to create compatible props for Input component
+  const getInputProps = (fieldName: keyof AssetFormData, options?: any) => {
+    const registration = register(fieldName, options);
+    return {
+      ...registration,
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        registration.onChange(e);
+      },
+      onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        registration.onBlur(e);
+      }
+    };
+  };
+
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -38,7 +52,7 @@ const BaseAssetForm: React.FC<BaseAssetFormProps> = ({
           <Input
             label="Asset Name"
             required
-            {...register('name', {
+            {...getInputProps('name', {
               required: 'Asset name is required',
               minLength: { value: 2, message: 'Name must be at least 2 characters' }
             })}
@@ -51,7 +65,7 @@ const BaseAssetForm: React.FC<BaseAssetFormProps> = ({
           <Input
             label="Category"
             required
-            {...register('category', {
+            {...getInputProps('category', {
               required: 'Category is required',
               minLength: { value: 2, message: 'Category must be at least 2 characters' }
             })}
@@ -63,7 +77,7 @@ const BaseAssetForm: React.FC<BaseAssetFormProps> = ({
         <div>
           <Input
             label="Serial Number"
-            {...register('serialNumber')}
+            {...getInputProps('serialNumber')}
             placeholder="Enter serial number"
           />
         </div>
@@ -72,7 +86,7 @@ const BaseAssetForm: React.FC<BaseAssetFormProps> = ({
           <Input
             label="Purchase Date"
             type="date"
-            {...register('purchaseDate')}
+            {...getInputProps('purchaseDate')}
           />
         </div>
 
@@ -80,7 +94,7 @@ const BaseAssetForm: React.FC<BaseAssetFormProps> = ({
           <Input
             label="Purchase Price"
             type="number"
-            {...register('purchasePrice', {
+            {...getInputProps('purchasePrice', {
               min: { value: 0, message: 'Must be positive' },
               valueAsNumber: true
             })}
@@ -94,7 +108,7 @@ const BaseAssetForm: React.FC<BaseAssetFormProps> = ({
         <div className="sm:col-span-2">
           <Input
             label="Description"
-            {...register('description')}
+            {...getInputProps('description')}
             placeholder="Enter description"
             as="textarea"
             rows={3}

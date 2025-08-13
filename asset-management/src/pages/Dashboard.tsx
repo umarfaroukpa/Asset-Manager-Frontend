@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChange, getCurrentToken } from '../config/firebase.config';
+import { getDashboardStats, testAuth, debugEndpoints } from '../services/api';
 import { User } from 'firebase/auth';
+import { AppUser } from '../types/auth.types';
 
 interface DashboardStats {
   totalAssets: number;
@@ -17,10 +19,11 @@ interface DashboardStats {
 }
 
 const Dashboard: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [authTest, setAuthTest] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,65 +46,56 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardStats = async () => {
     try {
+      console.log('📊 Starting dashboard stats fetch...');
+      
       // Clear any previous errors
       setError(null); 
       
-      const token = await getCurrentToken(); 
-      if (!token) {
-        console.error('No authentication token available');
-        setError('Authentication required. Please try logging in again.');
+      // Test authentication first
+      console.log('🔐 Testing authentication...');
+      const authResult = await testAuth();
+      setAuthTest(authResult);
+      
+      if (!authResult.success) {
+        console.error('❌ Authentication test failed:', authResult);
+        setError(`Authentication failed: ${authResult.message}`);
         return;
       }
-
-      // import.meta.env for Vite 
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const url = `${baseUrl}/dashboard/stats`;
       
-      // Debug log
-      console.log('Fetching from URL:', url);
-      // Debug log (partial token)
-      console.log('Token:', token.substring(0, 20) + '...'); 
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include' 
-      });
+      console.log('✅ Authentication test passed, fetching stats...');
       
-      // Debug log
-      console.log('Response status:', response.status); 
-      // Debug log
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      // Fetch dashboard stats using the API client
+      const response = await getDashboardStats();
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Response error:', errorText);
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      const data = await response.json();
-      // Debug log
-      console.log('Received data:', data); 
+      console.log('📊 Dashboard stats response:', response);
       
-      if (data.success) {
-        setStats(data.data);
+      if (response.success) {
+        setStats(response.data);
+        console.log('✅ Dashboard stats loaded successfully');
       } else {
-        throw new Error(data.message || 'Failed to fetch stats');
+        throw new Error(response.message || 'Failed to fetch stats');
       }
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error occurred');
+      
+    } catch (error: any) {
+      console.error('❌ Error fetching dashboard stats:', error);
+      setError(error.message || 'Failed to load dashboard data');
     }
+  };
+
+  const runDebugTests = async () => {
+    console.log('🔍 Running debug tests...');
+    await debugEndpoints();
+    await testAuth();
   };
 
   // Show loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-xl text-gray-600">Loading...</div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="text-xl text-gray-600">Loading...</div>
+        </div>
       </div>
     );
   }
@@ -116,15 +110,34 @@ const Dashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <h3 className="text-red-800 font-semibold">Error Loading Dashboard</h3>
-            <p className="text-red-600">{error}</p>
-            <button 
-              onClick={fetchDashboardStats}
-              className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-            >
-              Retry
-            </button>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+            <h3 className="text-red-800 font-semibold mb-2">Error Loading Dashboard</h3>
+            <p className="text-red-600 mb-4">{error}</p>
+            
+            {/* Debug information */}
+            {authTest && (
+              <div className="mt-4 p-4 bg-red-100 rounded text-sm">
+                <h4 className="font-semibold text-red-800">Authentication Test Result:</h4>
+                <pre className="text-red-700 mt-2 overflow-auto">
+                  {JSON.stringify(authTest, null, 2)}
+                </pre>
+              </div>
+            )}
+            
+            <div className="flex gap-2 mt-4">
+              <button 
+                onClick={fetchDashboardStats}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              >
+                Retry
+              </button>
+              <button 
+                onClick={runDebugTests}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Run Debug Tests
+              </button>
+            </div>
           </div>
           
           {/* Show basic dashboard layout even with error */}

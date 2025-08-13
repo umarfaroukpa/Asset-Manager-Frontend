@@ -69,6 +69,8 @@ export interface InputProps {
   step?: string | number;
   min?: string | number;
   max?: string | number;
+  as?: 'input' | 'textarea';
+  rows?: number;
 }
 
 export interface TextareaProps {
