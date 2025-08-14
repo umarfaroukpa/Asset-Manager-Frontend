@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { getCurrentToken, onAuthStateChange } from '../config/firebase.config'; 
 import { Asset } from '../types/Assets';
+import { NotificationResponse, Notification as AppNotification } from '../types/notification.types';
 import { logAPI, logError, logAuth } from '../utils/logger';
 
 // Global type declarations
@@ -1029,6 +1030,30 @@ getLocations: async (): Promise<FilterOption[]> => {
       console.error('❌ Failed to delete report:', error);
       throw error;
     }
+  }
+};
+
+export const getNotifications = async (page: number = 1, limit: number = 20): Promise<AppNotification[]> => {
+  try {
+    console.log(`📢 Fetching notifications (page: ${page}, limit: ${limit})...`);
+    const response = await apiClient.get<NotificationResponse>('/notifications', {
+      params: { page, limit },
+    });
+
+    console.log('📢 Notifications response:', response.data);
+
+    if (response.data.success) {
+      return response.data.data;
+    } else {
+      throw new Error(response.data.message || 'Failed to fetch notifications');
+    }
+  } catch (error: any) {
+    console.error('❌ Error fetching notifications:', error);
+    if (error.response?.status === 404) {
+      console.log('ℹ️ Notifications endpoint not found, returning empty array');
+      return [];
+    }
+    throw new Error(error.message || 'Failed to fetch notifications');
   }
 };
 

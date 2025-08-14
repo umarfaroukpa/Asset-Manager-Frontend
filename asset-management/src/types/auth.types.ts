@@ -17,6 +17,7 @@ export interface AppUser {
   department: string;
   phone: string;
   name: string;
+  photoURL: string;
 }
 
 export interface Organization {

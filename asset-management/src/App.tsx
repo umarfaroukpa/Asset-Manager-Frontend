@@ -23,6 +23,7 @@ const AdminDashboard = lazy(() => import('./admin/AdminDashboard'));
 const AssetPage = lazy(() => import('./pages/Assetpage'));
 const PaymentCallback = lazy(() => import('./pages/PaymentCallback'));
 const AssignAsset = lazy(() => import('./components/assets/AssignAsset'));
+const Notifications = lazy(() => import('./components/Notifications'));
 
 // Loading component for Suspense
 const PageLoader = () => (
@@ -94,6 +95,9 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* Notifications Routes */}
+              <Route path="/notifications" element={<Notifications />} />
 
               {/* Adding New Assets */}
               <Route
