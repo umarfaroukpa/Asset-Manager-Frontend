@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { registerUser } from '../../config/firebase.config';
+import { registerUser, getCurrentToken } from '../../config/firebase.config';
 import { toast } from 'react-toastify';
 
 const RegistrationForm = () => {
@@ -33,59 +33,91 @@ const RegistrationForm = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      // Basic validation
-      if (formData.password !== formData.confirmPassword) {
-        throw new Error("Passwords don't match");
-      }
-      
-      if (!formData.acceptedTerms) {
-        throw new Error("You must accept the terms and conditions");
-      }
-
-      // Register user with Firebase
-      await registerUser(formData.email, formData.password);
-      
-      // Create user profile in database
-      const userProfile = {
-        email: formData.email,
-        userType: formData.userType,
-        ...(formData.userType === 'company' || formData.userType === 'organization') && {
-          companyName: formData.companyName,
-          companySize: formData.companySize,
-          industry: formData.industry
-        },
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        phone: formData.phone,
-        assetCount: formData.assetCount,
-        plan: calculatePlan(formData.userType, formData.companySize, formData.assetCount)
-      };
-
-      // This will Save to  database 
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userProfile)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create user profile');
-      }
-
-      toast.success('Registration successful!');
-      navigate('/dashboard');
-    } catch (error: any) {
-      toast.error(error.message || 'Registration failed');
-    } finally {
-      setLoading(false);
+  e.preventDefault();
+  setLoading(true);
+  
+  try {
+    // Basic validation
+    if (formData.password !== formData.confirmPassword) {
+      throw new Error("Passwords don't match");
     }
-  };
+    
+    if (!formData.acceptedTerms) {
+      throw new Error("You must accept the terms and conditions");
+    }
+
+    // Register user with Firebase
+    const firebaseUser = await registerUser(formData.email, formData.password);
+    
+    // Get the Firebase token
+    const token = await getCurrentToken(true);
+    
+    if (!token) {
+      throw new Error("Authentication failed - please try again");
+    }
+
+    // Create user profile in database
+    const userProfile = {
+      firebaseUID: firebaseUser.uid,
+      email: formData.email,
+      name: `${formData.firstName} ${formData.lastName}`,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      userType: formData.userType,
+      ...(formData.userType === 'company' || formData.userType === 'organization') && {
+        companyName: formData.companyName,
+        companySize: formData.companySize,
+        industry: formData.industry
+      },
+      phone: formData.phone,
+      assetCount: formData.assetCount,
+      plan: calculatePlan(formData.userType, formData.companySize, formData.assetCount),
+      acceptedTerms: formData.acceptedTerms,
+      termsAcceptedAt: new Date().toISOString()
+    };
+
+    // Use the API_BASE_URL from your environment
+    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+    
+    // Create profile using registration endpoint
+    const response = await fetch(`${API_BASE_URL}/users/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(userProfile)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to create user profile');
+    }
+
+    // Success - redirect to dashboard
+    toast.success('Registration successful! Welcome to your dashboard!');
+    navigate('/dashboard');
+    
+  } catch (error: any) {
+    console.error('Registration error:', error);
+    
+    // More specific error messages
+    let errorMessage = error.message || 'Registration failed';
+    
+    if (error.message.includes('auth/email-already-in-use')) {
+      errorMessage = 'This email is already registered. Please log in.';
+    } else if (error.message.includes('auth/weak-password')) {
+      errorMessage = 'Password should be at least 6 characters';
+    } else if (error.message.includes('network')) {
+      errorMessage = 'Network error. Please check your connection.';
+    }
+    
+    toast.error(errorMessage);
+    
+  } finally {
+    setLoading(false);
+  }
+};
 
   const calculatePlan = (userType: string, companySize: string, assetCount: string) => {
     if (userType === 'individual') {

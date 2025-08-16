@@ -564,7 +564,6 @@ export const getUserProfile = async () => {
 
 export const getUsers = async () => {
   try {
-    console.log('👥 Fetching all users...');
     const response = await apiClient.get('/users');
     console.log('✅ Users data received:', response.data);
     return response.data;

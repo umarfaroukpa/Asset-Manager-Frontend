@@ -36,11 +36,12 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // New state for enhanced functionality
+  // New state for theme functionality
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('theme');
-    return (saved as Theme) || 'light';
-  });
+  const saved = localStorage.getItem('theme');
+  if (saved) return saved as Theme;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+});
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -64,6 +65,17 @@ const Header: React.FC = () => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  
+  const handleChange = (e: MediaQueryListEvent) => {
+    setTheme(e.matches ? 'dark' : 'light');
+  };
+
+  mediaQuery.addEventListener('change', handleChange);
+  return () => mediaQuery.removeEventListener('change', handleChange);
+}, []);
 
   // Generate breadcrumbs based on current route
   useEffect(() => {

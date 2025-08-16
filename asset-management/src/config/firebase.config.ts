@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser, getIdToken, updateProfile } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged,  User as FirebaseUser, getIdToken, updateProfile } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore'; 
 import { AppUser, UserRole } from '../types/auth.types';
 import { logAuth, logError, logFirebase } from '../utils/logger';
