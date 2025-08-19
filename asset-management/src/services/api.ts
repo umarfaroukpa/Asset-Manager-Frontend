@@ -1056,6 +1056,22 @@ export const getNotifications = async (page: number = 1, limit: number = 20): Pr
   }
 };
 
+// making API call for paystack backend logic
+export const initiatePayment = async (amount: number, email: string): Promise<any> => {
+  try {
+    console.log('💳 Initiating payment with Paystack:', { amount, email });
+    const response = await apiClient.get(`'/payments', { amount, email }`);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error initiating payment:', error);
+    if (error instanceof Error) {
+      throw new Error(error.message || 'Failed to initiate payment');
+    } else {
+      throw new Error('Failed to initiate payment');
+    }
+  }
+
+};
 
 // Health check function to test API connectivity
 export const healthCheck = async () => {

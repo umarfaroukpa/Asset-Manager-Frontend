@@ -1,17 +1,16 @@
-// src/services/authService.ts
-import { LoginResponse, RegisterResponse, User, Organization } from '../types/auth.types';
+import { LoginResponse, RegisterResponse, AppUser, Organization } from '../types/auth.types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Type for auth state change listeners
-type AuthStateListener = (user: User | null) => void;
+type AuthStateListener = (user: AppUser | null) => void;
 
 /**
  * AuthService handles authentication and user management API calls.
  */
 class AuthService {
   private listeners: AuthStateListener[] = [];
-  private currentUser: User | null = null;
+  private currentUser: AppUser | null = null;
 
   constructor() {
     // Check for existing token on initialization
@@ -68,7 +67,7 @@ class AuthService {
   /**
    * Get current user
    */
-  getCurrentUser(): User | null {
+  getCurrentUser(): AppUser | null {
     return this.currentUser;
   }
 
@@ -176,7 +175,7 @@ class AuthService {
   /**
    * Verify a user token.
    */
-  async verifyToken(token: string): Promise<{ user: User; organization: Organization }> {
+  async verifyToken(token: string): Promise<{ user: AppUser; organization: Organization }> {
     try {
       return await this.makeRequest('/auth/verify', {
         method: 'GET',
@@ -198,7 +197,7 @@ class AuthService {
     lastName: string;
     role: 'staff';
     permissions: string[];
-  }): Promise<User> {
+  }): Promise<AppUser> {
     try {
       return await this.makeRequest('/auth/create-staff', {
         method: 'POST',
@@ -212,7 +211,7 @@ class AuthService {
   /**
    * Update user permissions.
    */
-  async updateUserPermissions(userId: string, permissions: string[]): Promise<User> {
+  async updateUserPermissions(userId: string, permissions: string[]): Promise<AppUser> {
     try {
       return await this.makeRequest(`/auth/users/${userId}/permissions`, {
         method: 'PUT',
@@ -226,7 +225,7 @@ class AuthService {
   /**
    * Get all staff in the organization.
    */
-  async getOrganizationStaff(): Promise<User[]> {
+  async getOrganizationStaff(): Promise<AppUser[]> {
     try {
       return await this.makeRequest('/auth/organization/staff');
     } catch (error) {
