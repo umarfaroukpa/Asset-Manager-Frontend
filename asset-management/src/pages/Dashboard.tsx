@@ -4,6 +4,9 @@ import { onAuthStateChange, getCurrentToken } from '../config/firebase.config';
 import { getDashboardStats, testAuth, debugEndpoints } from '../services/api';
 import { User } from 'firebase/auth';
 import { AppUser } from '../types/auth.types';
+import SubscriptionWidget from '../components/billing/SubscriptionWidget';
+import TrialBanner from '../components/TrialBanner';
+import SubscriptionSummary from '../components/SubscriptionSummary';
 
 interface DashboardStats {
   totalAssets: number;
@@ -168,6 +171,9 @@ const Dashboard: React.FC = () => {
           </p>
         </div>
 
+        {/* Trial Banner - Show for trial users */}
+        <TrialBanner daysLeft={7} showDismiss={true} />
+
         {/* Stats Cards */}
         {stats ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -244,8 +250,13 @@ const Dashboard: React.FC = () => {
           </div>
         )}
 
+        {/* Subscription Widget */}
+        <div className="mb-8">
+          <SubscriptionWidget showUpgradePrompt={true} compact={false} />
+        </div>
+
         {/* Main Dashboard Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Quick Actions */}
           <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <h3 className="text-lg font-semibold mb-4 text-gray-900">Quick Actions</h3>
@@ -273,6 +284,18 @@ const Dashboard: React.FC = () => {
                 className="w-full text-left px-4 py-2 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors"
               >
                 Generate Reports
+              </button>
+              <button
+                onClick={() => navigate('/subscription')}
+                className="w-full text-left px-4 py-2 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors"
+              >
+                📋 Manage Subscription
+              </button>
+              <button
+                onClick={() => navigate('/checkout')}
+                className="w-full text-left px-4 py-2 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition-colors"
+              >
+                ⭐ Upgrade Plan
               </button>
             </div>
           </div>
@@ -336,6 +359,11 @@ const Dashboard: React.FC = () => {
             >
               View All Notifications
             </button>
+          </div>
+
+          {/* Subscription Summary */}
+          <div>
+            <SubscriptionSummary compact={false} />
           </div>
         </div>
 

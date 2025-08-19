@@ -94,9 +94,21 @@ const RegistrationForm = () => {
       throw new Error(errorData.message || 'Failed to create user profile');
     }
 
-    // Success - redirect to dashboard
-    toast.success('Registration successful! Welcome to your dashboard!');
-    navigate('/dashboard');
+    // Success - redirect to welcome onboarding instead of dashboard directly
+    toast.success('Registration successful! Let\'s set up your subscription.');
+    
+    // Navigate to onboarding with registration data
+    navigate('/welcome', { 
+      state: { 
+        fromRegistration: true,
+        registrationData: {
+          userType: formData.userType,
+          assetCount: formData.assetCount,
+          companySize: formData.companySize,
+          plan: calculatePlan(formData.userType, formData.companySize, formData.assetCount)
+        }
+      }
+    });
     
   } catch (error: any) {
     console.error('Registration error:', error);
