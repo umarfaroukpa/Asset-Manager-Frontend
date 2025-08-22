@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  CheckCircle, 
-  ArrowRight, 
-  CreditCard, 
-  Users, 
-  Building, 
-  Crown,
-  Gift,
-  Clock
-} from 'lucide-react';
+import { CheckCircle, ArrowRight, CreditCard, Users, Building, Crown, Gift, Clock } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/authcontext';
 import Button from '../components/common/Button';

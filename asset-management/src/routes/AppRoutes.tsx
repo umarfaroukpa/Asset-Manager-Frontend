@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { BarChart2, LineChart, PieChart } from 'lucide-react';
 import { useAuth } from '../hooks/authcontext';
 
 // Auth Components
@@ -11,7 +12,7 @@ import Dashboard from '../pages/Dashboard';
 import WelcomeOnboarding from '../components/WelcomeOnboarding';
 import SubscriptionPage from '../pages/SubscriptionPage';
 import CheckoutFlow from '../components/CheckoutFlow';
-
+import PaymentCallback from '../pages/PaymentCallback';
 // Other Pages
 import Demo from '../pages/Demo';
 import AssetPage from '../pages/Assetpage';
@@ -20,12 +21,114 @@ import EditAssets from '../pages/EditAssets';
 import ProfilePage from '../pages/ProfilePage';
 import Organizations from '../pages/Organizations';
 import AssetsDetails from '../pages/AssetsDetails';
+import AdminDashboard from '../admin/AdminDashboard';
+import AssignAsset from '../components/assets/AssignAsset';
+import QRScannerComponent from '../components/assets/QRScanner';
 
 // Protected Route Component
 import ProtectedRoute from '../components/ProtectedRoute';
 
 // Layout Component
 import Layout from '../components/common/Layout';
+import ReportBuilder from '../components/reports/ReportBuilder';
+
+
+interface ReportData {
+  reportType: string;
+  filters: Record<string, any>;
+  data: any;
+  generatedAt: string;
+  summary?: {
+    totalRecords: number;
+    totalValue: number;
+    categories: string[];
+    locations?: string[];
+    departments?: string[];
+  };
+}
+
+// Define sample reportTypes and availableFilters
+const reportTypes = [
+  {
+    id: 'sales',
+    name: 'Sales Report',
+    icon: <BarChart2 />,
+    description: 'View sales performance over time',
+    chartType: 'bar' as const,
+  },
+  {
+    id: 'inventory',
+    name: 'Inventory Report',
+    icon: <PieChart />,
+    description: 'Analyze inventory levels',
+    chartType: 'pie' as const,
+  },
+  {
+    id: 'trends',
+    name: 'Trends Report',
+    icon: <LineChart />,
+    description: 'Track trends over time',
+    chartType: 'line' as const,
+  },
+];
+
+const availableFilters = [
+  {
+    id: 'dateRange',
+    label: 'Date Range',
+    type: 'date' as const,
+  },
+  {
+    id: 'category',
+    label: 'Category',
+    type: 'select' as const,
+    options: [
+      { value: 'electronics', label: 'Electronics' },
+      { value: 'clothing', label: 'Clothing' },
+      { value: 'accessories', label: 'Accessories' },
+    ],
+  },
+];
+
+// Define onGenerate and onExport handlers
+const onGenerate = async (reportType: string, filters: Record<string, any>): Promise<ReportData> => {
+  console.log('Generating report:', reportType, filters);
+  // Simulate API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        reportType,
+        filters,
+        data: {
+          tableData: [
+            ['Sample ID', 'Sample Item', reportType, 'Sample Location', 'Active', '1000', 'Unassigned', '2023-01-01', 'N/A'],
+          ],
+          headers: ['ID', 'Name', 'Category', 'Location', 'Status', 'Value', 'Assigned To', 'Purchase Date', 'Serial Number'],
+        },
+        generatedAt: new Date().toISOString(),
+        summary: {
+          totalRecords: 1,
+          totalValue: 1000,
+          categories: [reportType],
+          locations: ['Sample Location'],
+          departments: ['Sample Department'],
+        },
+      });
+    }, 1000);
+  });
+};
+
+const onExport = async (format: 'pdf' | 'csv' | 'excel', data: ReportData): Promise<void> => {
+  console.log(`Exporting report in ${format} format:`, data);
+  // Simulate async export operation
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(`Completed export to ${format}`);
+      resolve();
+    }, 500);
+  });
+};
+
 
 const AppRoutes: React.FC = () => {
   const { user, loading } = useAuth();
@@ -71,6 +174,7 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
+      {        /* Checkout Flow Route - Accessible to authenticated users */}
       <Route 
         path="/checkout" 
         element={
@@ -91,6 +195,7 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
+        {/* Assets Route - Protected */}
       <Route 
         path="/assets" 
         element={
@@ -101,6 +206,7 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
+        {/* Create Assets Route - Protected */}
       <Route 
         path="/assets/create" 
         element={
@@ -111,6 +217,7 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
+      {/* Edit Assets Route - Protected */}
       <Route 
         path="/assets/edit/:id" 
         element={
@@ -121,6 +228,7 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
+      {/* Asset Details Route - Protected */}
       <Route 
         path="/assets/:id" 
         element={
@@ -131,6 +239,46 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
+      {/* Asset New Route - Protected*/}
+      
+      <Route 
+        path="/assets/new" 
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <AssetPage />
+            </Layout>
+          </ProtectedRoute>
+        } 
+      />
+       {/*Asset Assign Route - Protected*/}
+      <Route 
+        path="/assets/assign" 
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <AssignAsset />
+            </Layout>
+          </ProtectedRoute>
+        } 
+      />
+        {/* Asset ScanRoute -Protected */}
+        <Route 
+          path="/assets/scan" 
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <QRScannerComponent 
+                  onScan={(data: string) => { /* handle scan result */ }} 
+                  onClose={() => { /* handle close */ }} 
+                  isOpen={true} 
+                />
+              </Layout>s
+            </ProtectedRoute>
+          } 
+        />
+
+      {/* Profile Route - Protected */}
       <Route 
         path="/profile" 
         element={
@@ -141,6 +289,7 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
+      {/* Organizations Route - Protected */}
       <Route 
         path="/organizations" 
         element={
@@ -151,8 +300,55 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
-      
+      {/* Admin Dashboard Route - Protected */}
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <AdminDashboard />
+            </Layout>
+          </ProtectedRoute>
+        } 
+      />
+
+      {/* Report Builder route with props */}
+        <Route
+          path="/reports/builder"
+          element={
+            <ProtectedRoute>
+                <Layout>
+                   <ReportBuilder
+                     reportTypes={reportTypes}
+                     availableFilters={availableFilters}
+                     onGenerate={onGenerate}
+                     onExport={onExport}
+                     onSave={async (reportConfig: { name: string; type: string; filters: Record<string, any>; description?: string }) => {
+                       // handle save
+                       return Promise.resolve();
+                     }}
+                     saveEnabled={true}
+                   />
+                    </Layout>
+            </ProtectedRoute>
+          }
+
+        />
+
+      {/* Organizations Route - Protected */}
+      <Route 
+        path="/organization" 
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Organizations />
+            </Layout>
+          </ProtectedRoute>
+        } 
+      />
+
       {/* Catch all route */}
+      <Route path="/payment/callback" element={<PaymentCallback />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

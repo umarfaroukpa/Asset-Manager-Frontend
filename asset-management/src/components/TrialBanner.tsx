@@ -83,9 +83,9 @@ const TrialBanner: React.FC<TrialBannerProps> = ({
         <div className="flex-shrink-0">
           <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
             {daysLeft <= 2 ? (
-              <Clock className="w-6 h-6 text-white" />
+              <Clock className="w-6 h-6 text-white" data-testid="clock-icon" />
             ) : (
-              <Crown className="w-6 h-6 text-white" />
+              <Crown className="w-6 h-6 text-white" data-testid="crown-icon" />
             )}
           </div>
         </div>

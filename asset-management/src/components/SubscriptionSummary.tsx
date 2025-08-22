@@ -57,7 +57,7 @@ const SubscriptionSummary: React.FC<SubscriptionSummaryProps> = ({ compact = fal
       <div className="bg-white rounded-lg border shadow-sm p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">
-            <Crown className="w-5 h-5 text-indigo-600" />
+            <Crown className="w-5 h-5 text-indigo-600" data-testid="crown-icon" />
             <span className="font-semibold text-gray-900">{currentPlan.name}</span>
           </div>
           <span className="text-sm text-gray-500">
@@ -115,7 +115,7 @@ const SubscriptionSummary: React.FC<SubscriptionSummaryProps> = ({ compact = fal
         <div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center space-x-2">
-              <Package className="w-4 h-4 text-gray-500" />
+              <Package className="w-4 h-4 text-gray-500" data-testid="package-icon" />
               <span className="text-sm font-medium text-gray-700">Assets</span>
             </div>
             <span className={`text-xs px-2 py-1 rounded-full ${getUsageColor(usagePercentage.assets)}`}>
@@ -133,7 +133,7 @@ const SubscriptionSummary: React.FC<SubscriptionSummaryProps> = ({ compact = fal
         <div>
           <div className="flex justify-between items-center mb-2">
             <div className="flex items-center space-x-2">
-              <Users className="w-4 h-4 text-gray-500" />
+              <Users className="w-4 h-4 text-gray-500" data-testid="users-icon" />
               <span className="text-sm font-medium text-gray-700">Users</span>
             </div>
             <span className={`text-xs px-2 py-1 rounded-full ${getUsageColor(usagePercentage.users)}`}>
