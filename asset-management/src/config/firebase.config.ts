@@ -5,13 +5,14 @@ import { AppUser, UserRole } from '../types/auth.types';
 import { logAuth, logError, logFirebase } from '../utils/logger';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCyzjBHJRXUCIUZK5s-XcTypje9adqESyw",
-  authDomain: "asset-manager-fb9d3.firebaseapp.com",
-  projectId: "asset-manager-fb9d3",
-  storageBucket: "asset-manager-fb9d3.firebasestorage.app",
-  messagingSenderId: "61212248438",
-  appId: "1:61212248438:web:758ee01d1c1bd3c1649257",
-  measurementId: "G-N5EMCN8T3R",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  
 };
 
 // API Base URL
