@@ -174,7 +174,7 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       />
-      {        /* Checkout Flow Route - Accessible to authenticated users */}
+      { /* Checkout Flow Route - Accessible to authenticated users */}
       <Route 
         path="/checkout" 
         element={

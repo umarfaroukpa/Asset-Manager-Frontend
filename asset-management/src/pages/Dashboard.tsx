@@ -280,7 +280,7 @@ const Dashboard: React.FC = () => {
                 Assign Asset
               </button>
               <button
-                onClick={() => navigate('/reports')}
+                onClick={() => navigate('/reports/builder')}
                 className="w-full text-left px-4 py-2 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors"
               >
                 Generate Reports

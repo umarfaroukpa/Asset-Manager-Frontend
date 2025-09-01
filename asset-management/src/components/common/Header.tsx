@@ -96,7 +96,7 @@ const Header: React.FC = () => {
     setBreadcrumbs(generateBreadcrumbs());
   }, [location.pathname]);
 
-  // Mock function to load notifications (replace with actual API call)
+  // Mock function to load notifications (I will letter replaceit  with actual API call)
   useEffect(() => {
     if (user) {
       const mockNotifications: Notification[] = [
@@ -120,7 +120,7 @@ const Header: React.FC = () => {
       setNotifications(mockNotifications);
       setUnreadCount(mockNotifications.filter(n => !n.read).length);
       
-      // Mock avatar URL (replace with actual user avatar logic)
+      // Mock avatar URL (I will letter replace it with actual user avatar logic)
       if (user.photoURL) {
         setUserAvatar(user.photoURL);
       } else {
@@ -139,7 +139,7 @@ const Header: React.FC = () => {
 
     setSearchLoading(true);
     
-    // Mock search results (replace with actual search API)
+    // Mock search results (I will letter replace it with actual search API)
     setTimeout(() => {
       const mockResults: SearchResult[] = [
         {
@@ -386,7 +386,7 @@ const Header: React.FC = () => {
               </>
             ) : (
               <>
-                <Link to="/" className={navLinkClass("/")}>
+                <Link to="/dashboard" className={navLinkClass("/dashboard")}>
                   Home
                 </Link>
                 <Link to="/login" className="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
@@ -849,8 +849,8 @@ const Header: React.FC = () => {
               ) : (
                 <>
                   <Link
-                    to="/"
-                    className={`${navLinkClass("/")} block`}
+                    to="/dashboard"
+                    className={`${navLinkClass("/dashboard")} block`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Home
@@ -899,7 +899,7 @@ const Header: React.FC = () => {
           </div>
         )}
 
-        {/* Tooltip Overlay - Add this at the end of the component for global tooltips */}
+        {/* Global tooltip Overlay  */}
         <div
           id="tooltip"
           className="absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 dark:bg-gray-700 rounded shadow-lg pointer-events-none opacity-0 transition-opacity duration-200"
@@ -911,7 +911,7 @@ const Header: React.FC = () => {
   );
 };
 
-// Custom hook for tooltips (add this after the component)
+// Custom hook for tooltips 
 export const useTooltip = () => {
   const showTooltip = (text: string, element: HTMLElement) => {
     const tooltip = document.getElementById('tooltip');
