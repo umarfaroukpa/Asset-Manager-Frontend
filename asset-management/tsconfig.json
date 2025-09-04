@@ -18,5 +18,5 @@
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"],
-  "types": ["@testing-library/jest-dom"]
+  "types": ["vitest/globals", "vite/client", "@testing-library/jest-dom"]
 }

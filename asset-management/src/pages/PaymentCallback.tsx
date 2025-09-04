@@ -19,7 +19,23 @@ interface PaymentResult {
   status?: string;
 }
 
-const PaymentCallback: React.FC = () => {
+interface PaymentCallbackProps {
+  order?: {
+    id: string;
+    amount: number;
+    currency: string;
+    items: Array<{
+      id: string;
+      name: string;
+      price: number;
+      quantity: number;
+    }>;
+    tax?: number;
+    shipping?: number;
+  };
+}
+
+const PaymentCallback: React.FC<PaymentCallbackProps> = ({ order }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);

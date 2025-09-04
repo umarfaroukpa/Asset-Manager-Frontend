@@ -1,36 +1,36 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { BarChart2, LineChart, PieChart } from 'lucide-react';
 import { useAuth } from '../hooks/authcontext';
+import Demo from '../pages/Demo';
 
 // Auth Components
-import Login from '../components/auth/Login';
-import Registration from '../components/auth/Registration';
+const Login = lazy(() => import('../components/auth/Login'));
+const Registration = lazy(() => import('../components/auth/Registration'));
 
 // Main App Components
-import Dashboard from '../pages/Dashboard';
-import WelcomeOnboarding from '../components/WelcomeOnboarding';
-import SubscriptionPage from '../pages/SubscriptionPage';
-import CheckoutFlow from '../components/CheckoutFlow';
-import PaymentCallback from '../pages/PaymentCallback';
+const Dashboard = lazy(() => import('../pages/Dashboard'));
+const WelcomeOnboarding = lazy(() => import ('../components/WelcomeOnboarding'));
+const SubscriptionPage = lazy(() => import ('../pages/SubscriptionPage'));
+const CheckoutFlow = lazy(() => import ('../components/CheckoutFlow'));
+const PaymentCallback = lazy(() => import('../pages/PaymentCallback'));
 // Other Pages
-import Demo from '../pages/Demo';
-import AssetPage from '../pages/Assetpage';
-import CreateAsset from '../pages/CreateAsset';
-import EditAssets from '../pages/EditAssets';
-import ProfilePage from '../pages/ProfilePage';
-import Organizations from '../pages/Organizations';
-import AssetsDetails from '../pages/AssetsDetails';
-import AdminDashboard from '../admin/AdminDashboard';
-import AssignAsset from '../components/assets/AssignAsset';
-import QRScannerComponent from '../components/assets/QRScanner';
+const AssetPage = lazy(() => import('../pages/Assetpage'));
+const CreateAsset = lazy(() => import ('../pages/CreateAsset'));
+const EditAssets = lazy(() => import ('../pages/EditAssets'));
+const ProfilePage = lazy(() => import('../pages/ProfilePage'));
+const Organizations = lazy(() => import('../pages/Organizations'));
+const AssetsDetails = lazy(() => import ('../pages/AssetsDetails'));
+const AdminDashboard = lazy(() => import('../admin/AdminDashboard'));
+const AssignAsset = lazy(() => import('../components/assets/AssignAsset'));
+const QRScannerComponent = lazy(() => import('../components/assets/QRScanner'));
 
 // Protected Route Component
-import ProtectedRoute from '../components/ProtectedRoute';
+const ProtectedRoute = lazy(() => import('../components/ProtectedRoute'));
 
 // Layout Component
-import Layout from '../components/common/Layout';
-import ReportBuilder from '../components/reports/ReportBuilder';
+const Layout = lazy(() => import ('../components/common/Layout'));
+const ReportBuilder = lazy(() => import('../components/reports/ReportBuilder'));
 
 
 interface ReportData {

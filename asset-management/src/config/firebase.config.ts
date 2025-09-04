@@ -4,19 +4,91 @@ import { getFirestore } from 'firebase/firestore';
 import { AppUser, UserRole } from '../types/auth.types';
 import { logAuth, logError, logFirebase } from '../utils/logger';
 
+// Replace your firebaseConfig object in firebase.config.ts with this:
+
+// const firebaseConfig = {
+//   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+//   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+//   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+//   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+//   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+//   appId: import.meta.env.VITE_FIREBASE_APP_ID,
+//   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+// };
+
+// // Add validation to ensure all required values are present
+// if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.authDomain) {
+//   console.error('❌ Missing required Firebase configuration values!');
+//   console.error('Current config:', {
+//     apiKey: firebaseConfig.apiKey ? 'Present' : 'MISSING',
+//     projectId: firebaseConfig.projectId || 'MISSING',
+//     authDomain: firebaseConfig.authDomain || 'MISSING'
+//   });
+//   throw new Error('Firebase configuration is incomplete. Check your .env file.');
+// }
+
+// console.log('✅ Firebase config loaded successfully:', {
+//   apiKey: firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 20)}...` : 'MISSING',
+//   projectId: firebaseConfig.projectId,
+//   authDomain: firebaseConfig.authDomain
+// });
+
+
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
-  
+  apiKey: "AIzaSyCyzjBHJRXUCIUZK5s-XcTypje9adqESyw",
+  authDomain: "asset-manager-fb9d3.firebaseapp.com",
+  projectId: "asset-manager-fb9d3",
+  storageBucket: "asset-manager-fb9d3.firebasestorage.app",
+  messagingSenderId: "61212248438",
+  appId: "1:61212248438:web:758ee01d1c1bd3c1649257",
+  measurementId: "G-N5EMCN8T3R",
 };
 
+console.log('🧪 Using hardcoded config for testing');
+console.log('Config values:', {
+  apiKey: firebaseConfig.apiKey.substring(0, 20) + '...',
+  projectId: firebaseConfig.projectId,
+  authDomain: firebaseConfig.authDomain
+});
+
+//firebaseConfig object definition
+
+console.log('=== FIREBASE CONFIG DEBUG ===');
+console.log('Environment variables check:');
+console.log('VITE_FIREBASE_API_KEY exists:', !!import.meta.env.VITE_FIREBASE_API_KEY);
+console.log('VITE_FIREBASE_PROJECT_ID exists:', !!import.meta.env.VITE_FIREBASE_PROJECT_ID);
+console.log('VITE_FIREBASE_AUTH_DOMAIN exists:', !!import.meta.env.VITE_FIREBASE_AUTH_DOMAIN);
+
+console.log('\nResolved config values:');
+console.log('apiKey:', firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 20)}...` : 'UNDEFINED');
+console.log('projectId:', firebaseConfig.projectId);
+console.log('authDomain:', firebaseConfig.authDomain);
+console.log('storageBucket:', firebaseConfig.storageBucket);
+console.log('messagingSenderId:', firebaseConfig.messagingSenderId);
+console.log('appId:', firebaseConfig.appId);
+
+// Check for undefined values
+const undefinedKeys = Object.entries(firebaseConfig)
+  .filter(([key, value]) => value === undefined)
+  .map(([key]) => key);
+
+if (undefinedKeys.length > 0) {
+  console.error('❌ Undefined config keys:', undefinedKeys);
+} else {
+  console.log('✅ All config keys have values');
+}
+
+console.log('=== END DEBUG ===');
+
+// Additional validation
+if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'undefined' || firebaseConfig.apiKey.length < 30) {
+  console.error('❌ INVALID API KEY DETECTED!');
+  console.error('API Key value:', firebaseConfig.apiKey);
+  console.error('API Key type:', typeof firebaseConfig.apiKey);
+}
+
 // API Base URL
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.REACT_APP_API_URL || import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 logFirebase('Firebase initialized', { projectId: firebaseConfig.projectId });
 
