@@ -301,17 +301,6 @@ const apiClient: AxiosInstance = axios.create({
   }
 });
 
-// Then create the axios instance with this base URL
-const apiClient: AxiosInstance = axios.create({
-  baseURL: getBaseURL(),
-  timeout: 15000,
-  withCredentials: true, // Add this for cookies if needed
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
-});
-
 // Request interceptor with improved token handling
 apiClient.interceptors.request.use(
   async (config) => {
