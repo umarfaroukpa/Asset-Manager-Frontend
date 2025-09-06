@@ -1,9 +1,21 @@
+// API Configuration
+const config = {
+  development: {
+    API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+  },
+  production: {
+    API_BASE_URL: 'https://asset-manager-backend-2.onrender.com',
+  }
+};
+
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
   TIMEOUT: 30000,
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
 };
+
+const environment = import.meta.env.MODE || 'development';
+export const API_BASE_URL = config[environment as keyof typeof config].API_BASE_URL;
 
 // API Endpoints
 export const API_ENDPOINTS = {
@@ -24,6 +36,7 @@ export const API_ENDPOINTS = {
     PROFILE: '/users/profile',
     UPDATE_PROFILE: '/users/profile',
     CHANGE_PASSWORD: '/users/change-password',
+    ME: '/users/me', // Added this since you're using it
   },
   
   // Assets

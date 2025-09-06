@@ -268,11 +268,38 @@ const getFreshToken = async (): Promise<string | null> => {
   return await tokenRefreshPromise;
 };
 
-// Fix the base URL configuration
+//base URL configuration
 const getBaseURL = () => {
-  // Use VITE_API_URL if set, otherwise default to port 5000
-  return import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  // Check environment first
+  const isDevelopment = import.meta.env.MODE === 'development' || 
+                       window.location.hostname === 'localhost' ||
+                       window.location.hostname === '127.0.0.1';
+  
+  if (isDevelopment) {
+    return 'http://localhost:5000/api';
+  }
+  
+  // fallback to production 
+  return import.meta.env.VITE_API_URL || 'https://asset-manager-backend-2.onrender.com/api';
 };
+
+// Add debug logging
+const baseURL = getBaseURL();
+console.log('🌍 Environment Mode:', import.meta.env.MODE);
+console.log('🌍 Window Location:', window.location.hostname);
+console.log('🌍 VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('🌍 Final Base URL:', baseURL);
+
+// Then create the axios instance with this base URL
+const apiClient: AxiosInstance = axios.create({
+  baseURL: baseURL,
+  timeout: 15000,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
 
 // Then create the axios instance with this base URL
 const apiClient: AxiosInstance = axios.create({
