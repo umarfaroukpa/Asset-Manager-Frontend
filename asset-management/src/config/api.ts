@@ -1,8 +1,5 @@
 
 const config = {
-  development: {
-    API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
-  },
   production: {
     API_BASE_URL: import.meta.env.VITE_API_URL || 'https://asset-manager-backend-2.onrender.com',
   }
