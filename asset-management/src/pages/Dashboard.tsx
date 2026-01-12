@@ -1,24 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { onAuthStateChange, getCurrentToken } from '../config/firebase.config';
-import { getDashboardStats, testAuth, debugEndpoints } from '../services/api';
-import { User } from 'firebase/auth';
+import { Package, Users, QrCode, Bell, Search,  Plus, ChevronRight,  Download, AlertCircle, CheckCircle,  DollarSign, Settings, HelpCircle, LogOut, User, Home} from 'lucide-react';
+import { onAuthStateChange } from '../config/firebase.config';
+import { getDashboardStats } from '../services/api';
 import { AppUser } from '../types/auth.types';
-import SubscriptionWidget from '../components/billing/SubscriptionWidget';
-import TrialBanner from '../components/TrialBanner';
-import SubscriptionSummary from '../components/SubscriptionSummary';
 
 interface DashboardStats {
   totalAssets: number;
   availableAssets: number;
   assignedAssets: number;
   totalValue: number;
-  totalUsers?: number;
-  totalOrganizations?: number;
-  totalCategories?: number;
   recentActivity?: any[];
   assetsByCategory?: any[];
-  monthlyGrowth?: number;
 }
 
 const Dashboard: React.FC = () => {
@@ -26,7 +19,8 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [authTest, setAuthTest] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,12 +29,10 @@ const Dashboard: React.FC = () => {
       setLoading(false);
       
       if (!user) {
-        // Redirect unauthenticated users to demo/landing page
-        navigate('/demo');
+        navigate('/');
         return;
       }
       
-      // Fetch dashboard stats for authenticated users
       fetchDashboardStats();
     });
 
@@ -49,352 +41,417 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      console.log('📊 Starting dashboard stats fetch...');
-      
-      // Clear any previous errors
-      setError(null); 
-      
-      // Test authentication first
-      console.log('🔐 Testing authentication...');
-      const authResult = await testAuth();
-      setAuthTest(authResult);
-      
-      if (!authResult.success) {
-        console.error('❌ Authentication test failed:', authResult);
-        setError(`Authentication failed: ${authResult.message}`);
-        return;
-      }
-      
-      console.log('✅ Authentication test passed, fetching stats...');
-      
-      // Fetch dashboard stats using the API client
       const response = await getDashboardStats();
-      
-      console.log('📊 Dashboard stats response:', response);
       
       if (response.success) {
         setStats(response.data);
-        console.log('✅ Dashboard stats loaded successfully');
       } else {
         throw new Error(response.message || 'Failed to fetch stats');
       }
       
     } catch (error: any) {
-      console.error('❌ Error fetching dashboard stats:', error);
+      console.error('Error fetching dashboard stats:', error);
       setError(error.message || 'Failed to load dashboard data');
     }
   };
 
-  const runDebugTests = async () => {
-    console.log('🔍 Running debug tests...');
-    await debugEndpoints();
-    await testAuth();
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate(`/assets?search=${searchQuery}`);
   };
 
-  // Show loading state
+  const handleLogout = async () => {
+    // Implement logout logic
+    navigate('/');
+  };
+
+  const handleHomeClick = () => {
+    navigate('/');
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <div className="text-xl text-gray-600">Loading...</div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="text-gray-600">Loading...</div>
         </div>
       </div>
     );
   }
 
-  // If no user after loading, this shouldn't happen due to redirect, but just in case
   if (!user) {
     return null;
   }
 
-  // Show error state for authenticated users
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-            <h3 className="text-red-800 font-semibold mb-2">Error Loading Dashboard</h3>
-            <p className="text-red-600 mb-4">{error}</p>
-            
-            {/* Debug information */}
-            {authTest && (
-              <div className="mt-4 p-4 bg-red-100 rounded text-sm">
-                <h4 className="font-semibold text-red-800">Authentication Test Result:</h4>
-                <pre className="text-red-700 mt-2 overflow-auto">
-                  {JSON.stringify(authTest, null, 2)}
-                </pre>
-              </div>
-            )}
-            
-            <div className="flex gap-2 mt-4">
-              <button 
-                onClick={fetchDashboardStats}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-              >
-                Retry
-              </button>
-              <button 
-                onClick={runDebugTests}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-              >
-                Run Debug Tests
-              </button>
-            </div>
-          </div>
-          
-          {/* Show basic dashboard layout even with error */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back, {user.displayName || user.email?.split('@')[0]}!
-            </h1>
-            <p className="text-gray-600">
-              Dashboard is temporarily unavailable. Please try again.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const quickActions = [
+    { label: 'Add asset', icon: <Plus className="w-4 h-4" />, onClick: () => navigate('/assets/new') },
+    { label: 'Assign asset', icon: <Users className="w-4 h-4" />, onClick: () => navigate('/assets/assign') },
+    { label: 'Generate report', icon: <Download className="w-4 h-4" />, onClick: () => navigate('/reports') },
+    { label: 'Scan QR code', icon: <QrCode className="w-4 h-4" />, onClick: () => navigate('/scan') },
+  ];
 
-  // Authenticated Dashboard - Full Dashboard
+  const alerts = [
+    { type: 'warning', message: '3 assets need maintenance', count: 3 },
+    { type: 'info', message: '5 warranties expiring soon', count: 5 },
+    { type: 'success', message: '2 new assets added', count: 2 },
+  ];
+
+  const recentActivities = [
+    { action: 'MacBook Pro assigned', user: 'John Smith', time: '2 hours ago' },
+    { action: 'Annual audit completed', user: 'Sarah Chen', time: '1 day ago' },
+    { action: 'Projector maintenance scheduled', user: 'Alex Johnson', time: '2 days ago' },
+    { action: 'New asset category added', user: 'You', time: '3 days ago' },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+      {/* Top Navigation */}
+      <nav className="bg-white border-b border-gray-200">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <button 
+                onClick={handleHomeClick}
+                className="flex items-center space-x-2 text-xl font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+              >
+                <Home className="w-5 h-5" />
+                <span>AssetTracker</span>
+              </button>
+              <div className="hidden md:flex ml-10 space-x-8">
+                <button 
+                  onClick={() => navigate('/dashboard')}
+                  className="text-blue-600 border-b-2 border-blue-600 pb-1"
+                >
+                  Dashboard
+                </button>
+                <button 
+                  onClick={() => navigate('/assets')}
+                  className="text-gray-700 hover:text-gray-900"
+                >
+                  Assets
+                </button>
+                <button 
+                  onClick={() => navigate('/reports')}
+                  className="text-gray-700 hover:text-gray-900"
+                >
+                  Reports
+                </button>
+                <button 
+                  onClick={() => navigate('/team')}
+                  className="text-gray-700 hover:text-gray-900"
+                >
+                  Team
+                </button>
+                <button 
+                  onClick={() => navigate('/settings')}
+                  className="text-gray-700 hover:text-gray-900"
+                >
+                  Settings
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="search"
+                  placeholder="Search assets..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </form>
+              
+              <button 
+                onClick={() => navigate('/notifications')}
+                className="relative p-2 text-gray-600 hover:text-gray-900"
+              >
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+              
+              <div className="relative">
+                <button 
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
+                >
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                    {user.displayName?.charAt(0) || user.email?.charAt(0) || 'U'}
+                  </div>
+                  <div className="hidden md:block">
+                    <div className="text-sm font-medium">{user.displayName || user.email?.split('@')[0]}</div>
+                    <div className="text-xs text-gray-500">{user.email}</div>
+                  </div>
+                </button>
+                
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                    <button 
+                      onClick={() => navigate('/profile')}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <User className="w-4 h-4 mr-3" />
+                      Your profile
+                    </button>
+                    <button 
+                      onClick={() => navigate('/settings')}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <Settings className="w-4 h-4 mr-3" />
+                      Settings
+                    </button>
+                    <button 
+                      onClick={() => navigate('/help')}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <HelpCircle className="w-4 h-4 mr-3" />
+                      Help & support
+                    </button>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button 
+                      onClick={handleLogout}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <LogOut className="w-4 h-4 mr-3" />
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
             Welcome back, {user.displayName || user.email?.split('@')[0]}!
           </h1>
           <p className="text-gray-600">
-            Here's an overview of your asset management dashboard
+            Here's what's happening with your assets today.
           </p>
         </div>
 
-        {/* Trial Banner - Show for trial users */}
-        <TrialBanner daysLeft={7} showDismiss={true} />
-
-        {/* Stats Cards */}
-        {stats ? (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Assets</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalAssets}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Available</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.availableAssets}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Assigned</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.assignedAssets}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Value</p>
-                  <p className="text-2xl font-bold text-gray-900">${stats.totalValue.toLocaleString()}</p>
-                </div>
-              </div>
-            </div>
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Quick actions</h2>
+            <button 
+              onClick={() => navigate('/assets')}
+              className="text-sm text-blue-600 hover:text-blue-700"
+            >
+              View all assets <ChevronRight className="w-4 h-4 inline ml-1" />
+            </button>
           </div>
-        ) : (
-          // Loading state for stats
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white p-6 rounded-lg shadow animate-pulse">
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
-                  <div className="ml-4">
-                    <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
-                    <div className="h-6 bg-gray-200 rounded w-16"></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {quickActions.map((action, index) => (
+              <button
+                key={index}
+                onClick={action.onClick}
+                className="bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-sm transition-all group"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
+                    {action.icon}
                   </div>
                 </div>
-              </div>
+                <div className="mt-4 text-left">
+                  <div className="font-medium text-gray-900">{action.label}</div>
+                </div>
+              </button>
             ))}
           </div>
-        )}
-
-        {/* Subscription Widget */}
-        <div className="mb-8">
-          <SubscriptionWidget showUpgradePrompt={true} compact={false} />
         </div>
 
-        {/* Main Dashboard Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Quick Actions */}
-          <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Quick Actions</h3>
-            <div className="space-y-2">
-              <button
-                onClick={() => navigate('/assets/new')}
-                className="w-full text-left px-4 py-2 bg-indigo-50 text-indigo-700 rounded hover:bg-indigo-100 transition-colors"
-              >
-                + Add New Asset
-              </button>
-              <button
-                onClick={() => navigate('/assets')}
-                className="w-full text-left px-4 py-2 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors"
-              >
-                View All Assets
-              </button>
-              <button
-                onClick={() => navigate('/assets/assign')}
-                className="w-full text-left px-4 py-2 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors"
-              >
-                Assign Asset
-              </button>
-              <button
-                onClick={() => navigate('/reports/builder')}
-                className="w-full text-left px-4 py-2 bg-gray-50 text-gray-700 rounded hover:bg-gray-100 transition-colors"
-              >
-                Generate Reports
-              </button>
-              <button
-                onClick={() => navigate('/subscription')}
-                className="w-full text-left px-4 py-2 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors"
-              >
-                📋 Manage Subscription
-              </button>
-              <button
-                onClick={() => navigate('/checkout')}
-                className="w-full text-left px-4 py-2 bg-purple-50 text-purple-700 rounded hover:bg-purple-100 transition-colors"
-              >
-                ⭐ Upgrade Plan
-              </button>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 mr-4">
+                <Package className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {stats?.totalAssets || 0}
+                </div>
+                <div className="text-sm text-gray-600">Total assets</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center text-green-600 mr-4">
+                <CheckCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {stats?.availableAssets || 0}
+                </div>
+                <div className="text-sm text-gray-600">Available</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-yellow-50 rounded-lg flex items-center justify-center text-yellow-600 mr-4">
+                <Users className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {stats?.assignedAssets || 0}
+                </div>
+                <div className="text-sm text-gray-600">Assigned</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600 mr-4">
+                <DollarSign className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900">
+                  ${stats?.totalValue ? stats.totalValue.toLocaleString() : '0'}
+                </div>
+                <div className="text-sm text-gray-600">Total value</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Alerts */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="font-semibold text-gray-900">Recent alerts</h3>
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  {alerts.map((alert, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                          alert.type === 'warning' ? 'bg-yellow-100 text-yellow-600' :
+                          alert.type === 'info' ? 'bg-blue-100 text-blue-600' :
+                          'bg-green-100 text-green-600'
+                        }`}>
+                          <AlertCircle className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{alert.message}</div>
+                        </div>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {alert.count} items
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button 
+                  onClick={() => navigate('/alerts')}
+                  className="w-full mt-4 py-2 text-sm text-blue-600 hover:text-blue-700 border border-gray-200 rounded-lg hover:border-blue-300"
+                >
+                  View all alerts
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Recent Activity</h3>
-            <div className="space-y-3">
-              {stats?.recentActivity && stats.recentActivity.length > 0 ? (
-                stats.recentActivity.slice(0, 5).map((activity, index) => (
-                  <div key={index} className="flex items-start text-sm">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-3 mt-2 flex-shrink-0"></div>
-                    <div>
-                      <span className="font-medium">{activity.name}</span>
-                      <p className="text-gray-600">{activity.description}</p>
-                      {activity.timestamp && (
-                        <p className="text-xs text-gray-400 mt-1">{activity.timestamp}</p>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-4">
-                  <svg className="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-gray-500 text-sm">No recent activity</p>
-                  <p className="text-gray-400 text-xs mt-1">Activities will appear here as you use the system</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Alerts & Notifications */}
-          <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Alerts & Notifications</h3>
-            <div className="space-y-3">
-              <div className="flex items-center text-sm text-red-600 bg-red-50 p-3 rounded-lg">
-                <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                <span>3 assets need maintenance</span>
-              </div>
-              <div className="flex items-center text-sm text-orange-600 bg-orange-50 p-3 rounded-lg">
-                <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <span>5 warranties expiring soon</span>
-              </div>
-              <div className="flex items-center text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">
-                <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <span>2 new asset assignments pending</span>
-              </div>
-            </div>
-            
-            <button 
-              onClick={() => navigate('/notifications')}
-              className="w-full mt-4 px-4 py-2 text-sm text-indigo-600 border border-indigo-600 rounded hover:bg-indigo-50 transition-colors"
-            >
-              View All Notifications
-            </button>
-          </div>
-
-          {/* Subscription Summary */}
           <div>
-            <SubscriptionSummary compact={false} />
+            <div className="bg-white rounded-lg border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="font-semibold text-gray-900">Recent activity</h3>
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  {recentActivities.map((activity, index) => (
+                    <div key={index} className="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                      <div className="font-medium text-gray-900">{activity.action}</div>
+                      <div className="flex items-center justify-between mt-1">
+                        <div className="text-sm text-gray-600">by {activity.user}</div>
+                        <div className="text-sm text-gray-500">{activity.time}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button 
+                  onClick={() => navigate('/activity')}
+                  className="w-full mt-4 py-2 text-sm text-blue-600 hover:text-blue-700"
+                >
+                  View full activity log
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Quick Stats Summary */}
-        {stats && (
-          <div className="mt-8 bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Asset Overview</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <p className="text-2xl font-bold text-green-600">
-                  {((stats.availableAssets / stats.totalAssets) * 100).toFixed(1)}%
-                </p>
-                <p className="text-sm text-gray-600">Assets Available</p>
+        {/* Asset Categories */}
+        {stats?.assetsByCategory && stats.assetsByCategory.length > 0 && (
+          <div className="mt-8 bg-white rounded-lg border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-gray-900">Assets by category</h3>
+                <button 
+                  onClick={() => navigate('/categories')}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  Manage categories
+                </button>
               </div>
-              
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <p className="text-2xl font-bold text-yellow-600">
-                  {((stats.assignedAssets / stats.totalAssets) * 100).toFixed(1)}%
-                </p>
-                <p className="text-sm text-gray-600">Assets Assigned</p>
-              </div>
-              
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <p className="text-2xl font-bold text-purple-600">
-                  ${(stats.totalValue / stats.totalAssets).toLocaleString()}
-                </p>
-                <p className="text-sm text-gray-600">Average Asset Value</p>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {stats.assetsByCategory.slice(0, 5).map((category, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center text-gray-600 mr-3">
+                        <Package className="w-4 h-4" />
+                      </div>
+                      <span className="text-gray-900">{category.name}</span>
+                    </div>
+                    <div className="text-gray-600">{category.count} assets</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
+
+        {/* Need Help Section */}
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="flex items-start">
+            <HelpCircle className="w-6 h-6 text-blue-600 mr-4 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-blue-900 mb-2">Need help?</h3>
+              <p className="text-blue-700 mb-4">
+                Check out our documentation or contact support if you have any questions.
+              </p>
+              <div className="flex space-x-4">
+                <button 
+                  onClick={() => navigate('/docs')}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  View documentation
+                </button>
+                <button 
+                  onClick={() => navigate('/contact')}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Contact support
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

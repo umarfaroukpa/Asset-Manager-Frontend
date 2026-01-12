@@ -1,72 +1,69 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Shield, FileText, Users, Database, Settings, ExternalLink, Github, Twitter, Linkedin, MessageCircle } from "lucide-react";
-  
-   
+import { Mail, Phone, MapPin, Shield, FileText, Users, Database, ExternalLink } from "lucide-react";
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-900 text-gray-300 pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-          
-          {/* Company Information */}
-          <div className="space-y-6">
-            <div className="flex items-center space-x-3">
-              <Database className="w-7 h-7 text-indigo-400" />
-              <h3 className="text-xl font-semibold text-white">AssetTracker Pro</h3>
+    <footer className="bg-gray-900 text-gray-400 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          {/* Company info */}
+          <div>
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                <Database className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-xl font-semibold text-white">AssetTracker</div>
             </div>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              Since 2019, we've helped over 15,000 companies streamline their asset management. 
-              From startups to Fortune 500s, our platform scales with your business needs.
+            <p className="text-sm text-gray-500 mb-4">
+              Simple, reliable asset management for teams of all sizes.
             </p>
-            <div className="flex space-x-3">
-              <a href="https://github.com/assettracker" className="text-gray-400 hover:text-indigo-400 transition-colors duration-200">
-                <Github className="w-5 h-5" />
+            <div className="flex space-x-4">
+              <a href="https://twitter.com" className="text-gray-500 hover:text-white">
+                <span className="sr-only">Twitter</span>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                </svg>
               </a>
-              <a href="https://twitter.com/assettrackerpro" className="text-gray-400 hover:text-indigo-400 transition-colors duration-200">
-                <Twitter className="w-5 h-5" />
+              <a href="https://github.com" className="text-gray-500 hover:text-white">
+                <span className="sr-only">GitHub</span>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
               </a>
-              <a href="https://linkedin.com/company/assettracker" className="text-gray-400 hover:text-indigo-400 transition-colors duration-200">
-                <Linkedin className="w-5 h-5" />
+              <a href="https://linkedin.com" className="text-gray-500 hover:text-white">
+                <span className="sr-only">LinkedIn</span>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                </svg>
               </a>
             </div>
           </div>
 
-          {/* Solutions */}
-          <div className="space-y-6">
-            <h4 className="text-lg font-medium text-white">Solutions</h4>
-            <ul className="space-y-3">
+          {/* Product */}
+          <div>
+            <h4 className="text-white font-medium mb-4">Product</h4>
+            <ul className="space-y-2">
               <li>
-                <Link to="/enterprise" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">
-                  Enterprise Suite
+                <Link to="/features" className="text-sm hover:text-white">
+                  Features
                 </Link>
               </li>
               <li>
-                <Link to="/small-business" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">
-                  Small Business
+                <Link to="/pricing" className="text-sm hover:text-white">
+                  Pricing
                 </Link>
               </li>
               <li>
-                <Link to="/nonprofit" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">
-                  Non-Profit Organizations
+                <Link to="/demo" className="text-sm hover:text-white">
+                  Demo
                 </Link>
               </li>
               <li>
-                <Link to="/education" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">
-                  Educational Institutions
-                </Link>
-              </li>
-              <li>
-                <Link to="/government" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">
-                  Government & Public Sector
-                </Link>
-              </li>
-              <li>
-                <Link to="/api" className="text-sm text-gray-400 hover:text-white transition-colors duration-200 flex items-center">
-                  Developer API
+                <Link to="/api" className="text-sm hover:text-white flex items-center">
+                  API
                   <ExternalLink className="w-3 h-3 ml-1" />
                 </Link>
               </li>
@@ -74,125 +71,91 @@ const Footer = () => {
           </div>
 
           {/* Resources */}
-          <div className="space-y-6">
-            <h4 className="text-lg font-medium text-white">Resources</h4>
-            <ul className="space-y-3">
+          <div>
+            <h4 className="text-white font-medium mb-4">Resources</h4>
+            <ul className="space-y-2">
               <li>
-                <Link to="/knowledge-base" className="text-sm text-gray-400 hover:text-white transition-colors duration-200 flex items-center">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Knowledge Base
+                <Link to="/docs" className="text-sm hover:text-white">
+                  Documentation
                 </Link>
               </li>
               <li>
-                <Link to="/webinars" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">
-                  Live Webinars
+                <Link to="/guides" className="text-sm hover:text-white">
+                  Guides
                 </Link>
               </li>
               <li>
-                <Link to="/case-studies" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">
-                  Customer Stories
+                <Link to="/blog" className="text-sm hover:text-white">
+                  Blog
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">
-                  Industry Blog
-                </Link>
-              </li>
-              <li>
-                <Link to="/community" className="text-sm text-gray-400 hover:text-white transition-colors duration-200 flex items-center">
-                  <Users className="w-4 h-4 mr-2" />
-                  User Community
-                </Link>
-              </li>
-              <li>
-                <Link to="/status" className="text-sm text-gray-400 hover:text-white transition-colors duration-200">
-                  System Status
+                <Link to="/community" className="text-sm hover:text-white">
+                  Community
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Support & Contact */}
-          <div className="space-y-6">
-            <h4 className="text-lg font-medium text-white">Get Help</h4>
-            <div className="space-y-4">
-              <div className="text-sm text-gray-400">
-                <strong className="text-white">Sales:</strong><br />
-                <a href="tel:+1-415-555-0198" className="hover:text-white transition-colors duration-200">
-                  (415) 555-0198
-                </a>
-              </div>
-              <div className="text-sm text-gray-400">
-                <strong className="text-white">Support:</strong><br />
-                <a href="mailto:help@assettracker.io" className="hover:text-white transition-colors duration-200">
-                  help@assettracker.io
-                </a>
-              </div>
-              <div className="text-sm text-gray-400">
-                <Link to="/support/chat" className="flex items-center hover:text-white transition-colors duration-200">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Live Chat Support
+          {/* Company */}
+          <div>
+            <h4 className="text-white font-medium mb-4">Company</h4>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/about" className="text-sm hover:text-white">
+                  About
                 </Link>
-                <span className="text-xs text-gray-500">Mon-Fri, 6AM-6PM PST</span>
-              </div>
-              <div className="text-sm text-gray-400">
-                <MapPin className="w-4 h-4 inline mr-2" />
-                San Francisco, CA
-              </div>
-            </div>
+              </li>
+              <li>
+                <Link to="/careers" className="text-sm hover:text-white">
+                  Careers
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-sm hover:text-white">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link to="/status" className="text-sm hover:text-white">
+                  Status
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Section */}
         <div className="border-t border-gray-800 pt-8">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-6 lg:space-y-0">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="text-sm text-gray-500">
+              © {currentYear} AssetTracker. All rights reserved.
+            </div>
             
-            {/* Left side - Copyright and certifications */}
-            <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-6">
-              <div className="text-sm text-gray-500">
-                © {currentYear} AssetTracker Technologies, Inc.
+            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-6">
+              <div className="flex items-center space-x-1 text-sm text-gray-500">
+                <Shield className="w-3 h-3" />
+                <span>GDPR compliant</span>
               </div>
-              <div className="flex items-center space-x-4 text-xs text-gray-500">
-                <span className="flex items-center">
-                  <Shield className="w-3 h-3 mr-1" />
-                  SOC 2 Certified
-                </span>
-                <span>GDPR Compliant</span>
-                <span>ISO 27001</span>
+              <div className="flex items-center space-x-1 text-sm text-gray-500">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>All systems operational</span>
               </div>
             </div>
-
-            {/* Right side - Legal links and status */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-8">
-              <div className="flex flex-wrap gap-x-6 gap-y-2">
-                <Link to="/privacy-policy" className="text-sm text-gray-500 hover:text-white transition-colors duration-200">
-                  Privacy
-                </Link>
-                <Link to="/terms-of-service" className="text-sm text-gray-500 hover:text-white transition-colors duration-200">
-                  Terms
-                </Link>
-                <Link to="/cookie-policy" className="text-sm text-gray-500 hover:text-white transition-colors duration-200">
-                  Cookies
-                </Link>
-                <Link to="/accessibility" className="text-sm text-gray-500 hover:text-white transition-colors duration-200">
-                  Accessibility
-                </Link>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                <span className="text-xs text-gray-500">99.9% uptime</span>
-              </div>
+            
+            <div className="flex space-x-6 text-sm text-gray-500">
+              <Link to="/privacy" className="hover:text-white">
+                Privacy
+              </Link>
+              <Link to="/terms" className="hover:text-white">
+                Terms
+              </Link>
+              <Link to="/security" className="hover:text-white">
+                Security
+              </Link>
+              <Link to="/cookies" className="hover:text-white">
+                Cookies
+              </Link>
             </div>
-          </div>
-        </div>
-
-        {/* Final bottom note */}
-        <div className="mt-8 pt-6 border-t border-gray-800">
-          <div className="text-center">
-            <p className="text-xs text-gray-600">
-              Trusted by companies in 47 countries. Processing over 2.3M assets daily.
-            </p>
           </div>
         </div>
       </div>
